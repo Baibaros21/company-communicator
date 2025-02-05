@@ -136,7 +136,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Blob
             catch (Exception ex)
             {
                 this.logger.LogError(ex, $"Error while downloading image from Azure Blob Storage. Image blob container name : {ImagesBlobContainerName}, Error details: {ex.Message}");
-                throw;
+                return string.Empty;
             }
         }
 

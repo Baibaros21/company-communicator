@@ -1,6 +1,4 @@
 "use strict";
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
 var __assign = (this && this.__assign) || function () {
     __assign = Object.assign || function(t) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
@@ -59,6 +57,10 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NewMessage = void 0;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+require("./newMessages.scss");
+var react_icons_1 = require("@fluentui/react-icons");
 var AdaptiveCards = require("adaptivecards");
 var React = require("react");
 var react_i18next_1 = require("react-i18next");
@@ -66,7 +68,7 @@ var react_router_dom_1 = require("react-router-dom");
 var validator_1 = require("validator");
 var react_components_1 = require("@fluentui/react-components");
 var unstable_1 = require("@fluentui/react-components/unstable");
-var react_icons_1 = require("@fluentui/react-icons");
+var react_icons_2 = require("@fluentui/react-icons");
 var microsoftTeams = require("@microsoft/teams-js");
 var ACData = require("adaptivecards-templating");
 var actions_1 = require("../../actions");
@@ -75,9 +77,25 @@ var store_1 = require("../../store");
 var adaptiveCard_1 = require("../AdaptiveCard/adaptiveCard");
 var validImageTypes = ['image/gif', 'image/jpeg', 'image/png', 'image/jpg'];
 var useComboboxStyles = (0, react_components_1.makeStyles)({
-    root: __assign(__assign({ 
-        // Stack the label above the field with a gap
-        display: 'grid', gridTemplateRows: 'repeat(1fr)', justifyItems: 'start' }, react_components_1.shorthands.gap('2px')), { paddingLeft: '36px' }),
+    root: __assign(__assign({ display: 'grid', gridTemplateRows: 'repeat(1fr)', justifyItems: 'start' }, react_components_1.shorthands.gap('2px')), { paddingLeft: '36px' }),
+    combobox: {
+        position: 'relative',
+        width: '100%',
+        backgroundColor: react_components_1.tokens.colorNeutralBackground3,
+    },
+    comboboxInputContainer: __assign(__assign(__assign(__assign({ display: 'flex', alignItems: 'center', width: '100%', borderBlockColor: react_components_1.tokens.colorTransparentStroke, borderInlineColor: react_components_1.tokens.colorTransparentStroke }, react_components_1.shorthands.borderRadius("4px")), react_components_1.shorthands.borderWidth('0px')), react_components_1.shorthands.borderStyle('solid')), react_components_1.shorthands.padding('1px', '4px')),
+    comboboxInput: __assign(__assign(__assign(__assign({ width: '100%', backgroundColor: react_components_1.tokens.colorNeutralBackground3, fontSize: react_components_1.tokens.fontSizeBase400, fontWeight: react_components_1.tokens.fontWeightRegular, color: react_components_1.tokens.colorNeutralForeground1, height: '38px', paddingLeft: react_components_1.tokens.spacingHorizontalM, borderBlockColor: react_components_1.tokens.colorTransparentStroke, borderInlineColor: react_components_1.tokens.colorTransparentStroke }, react_components_1.shorthands.borderRadius("4px")), react_components_1.shorthands.borderWidth('0px')), react_components_1.shorthands.borderStyle('solid')), react_components_1.shorthands.padding('1px', '2px')),
+    comboboxIcon: __assign(__assign({}, react_components_1.shorthands.padding('10px')), { cursor: 'pointer' }),
+    comboboxOptions: __assign(__assign({ listStyleType: 'none', backgroundColor: react_components_1.tokens.colorTransparentBackground, position: 'absolute', width: '100%' }, react_components_1.shorthands.borderRadius(react_components_1.tokens.borderRadiusMedium)), { maxHeight: '200px', overflowY: 'auto', zIndex: 1000, display: 'none' }),
+    comboboxOption: {
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        backgroundColor: react_components_1.tokens.colorNeutralBackground1,
+    },
+    comboboxOptionHover: {
+        backgroundColor: react_components_1.tokens.colorNeutralBackground1Hover,
+    },
     tagsList: {
         listStyleType: 'none',
         marginBottom: react_components_1.tokens.spacingVerticalXXS,
@@ -326,21 +344,6 @@ var NewMessage = function () {
         /*        setDefaultCard(card);
         */ updateAdaptiveCard();
     };
-    /*const setDefaultCard = (card: any) => {
-        const titleAsString = t('TitleText');
-        const summaryAsString = t('Summary');
-        const authorAsString = t('Author');
-        const departmentAsString = t('Department');
-        const buttonTitleAsString = t('ButtonTitle');
-        setCardTitle(card, titleAsString);
-        let imgUrl = getBaseUrl() + '/image/imagePlaceholder.png';
-        setCardImageLink(card, imgUrl);
-        setCardVideoPlayerPoster(card, imgUrl);
-        setCardDeptTitle(card, departmentAsString);
-        setCardSummary(card, summaryAsString);
-        setCardAuthor(card, authorAsString);
-        setCardBtn(card, buttonTitleAsString, 'https://adaptivecards.io');
-    };*/
     var updateAdaptiveCard = function () {
         var adaptiveCard = new AdaptiveCards.AdaptiveCard();
         adaptiveCard.parse(card);
@@ -660,13 +663,48 @@ var NewMessage = function () {
     // refs for managing focus when removing tags
     var teamsSelectedListRef = React.useRef(null);
     var teamsComboboxInputRef = React.useRef(null);
+    var teamsComboboxOptionRef = React.useRef(null);
     var rostersSelectedListRef = React.useRef(null);
     var rostersComboboxInputRef = React.useRef(null);
+    var rosterComboboxOptionRef = React.useRef(null);
     var searchSelectedListRef = React.useRef(null);
     var searchComboboxInputRef = React.useRef(null);
+    var searchComboboxOptionRef = React.useRef(null);
+    //Custom Combobox functions
+    var handleInputClick = function (optionList) {
+        if (optionList.current && optionList.current.style) {
+            optionList.current.style.display = 'block';
+        }
+    };
+    var handleClickOutside = function (event) {
+        if (teamsComboboxOptionRef.current && teamsComboboxOptionRef.current.style) {
+            teamsComboboxOptionRef.current.style.display = 'none';
+        }
+        if (rosterComboboxOptionRef.current && rosterComboboxOptionRef.current.style) {
+            rosterComboboxOptionRef.current.style.display = 'none';
+        }
+        if (searchComboboxOptionRef.current && searchComboboxOptionRef.current.style) {
+            searchComboboxOptionRef.current.style.display = 'none';
+        }
+    };
+    React.useEffect(function () {
+        document.addEventListener('click', handleClickOutside);
+        return function () {
+            document.removeEventListener('click', handleClickOutside);
+        };
+    }, []);
+    //functions for handling teams. groups and users
     var onTeamsSelect = function (event, data) {
         if (data.selectedOptions.length <= MAX_SELECTED_TEAMS_NUM) {
             setTeamsSelectedOptions(teams.filter(function (t1) { return data.selectedOptions.some(function (t2) { return t2 === t1.id; }); }));
+        }
+    };
+    var onTeamsSelectOpt = function (opt) {
+        if (teamsSelectedOptions.length < MAX_SELECTED_TEAMS_NUM) {
+            var teamExists = teamsSelectedOptions.some(function (team) { return team.id === opt.id; });
+            if (!teamExists) {
+                setTeamsSelectedOptions(__spreadArray(__spreadArray([], teamsSelectedOptions, true), [opt], false));
+            }
         }
     };
     var onRostersSelect = function (event, data) {
@@ -674,9 +712,25 @@ var NewMessage = function () {
             setRostersSelectedOptions(teams.filter(function (t1) { return data.selectedOptions.some(function (t2) { return t2 === t1.id; }); }));
         }
     };
+    var onRosterSelectOpt = function (opt) {
+        if (rostersSelectedOptions.length < MAX_SELECTED_TEAMS_NUM) {
+            var teamExists = rostersSelectedOptions.some(function (team) { return team.id === opt.id; });
+            if (!teamExists) {
+                setRostersSelectedOptions(__spreadArray(__spreadArray([], rostersSelectedOptions, true), [opt], false));
+            }
+        }
+    };
     var onSearchSelect = function (event, data) {
         if (data.optionText && !searchSelectedOptions.find(function (x) { return x.id === data.optionValue; })) {
             setSearchSelectedOptions(__spreadArray(__spreadArray([], searchSelectedOptions, true), [{ id: data.optionValue, name: data.optionText }], false));
+        }
+    };
+    var onSearchSelectOpt = function (opt) {
+        if (searchSelectedOptions.length < MAX_SELECTED_TEAMS_NUM) {
+            var teamExists = searchSelectedOptions.some(function (team) { return team.id === opt.id; });
+            if (!teamExists) {
+                setSearchSelectedOptions(__spreadArray(__spreadArray([], searchSelectedOptions, true), [opt], false));
+            }
         }
     };
     var onSearchChange = function (event) {
@@ -757,8 +811,7 @@ var NewMessage = function () {
                         React.createElement(react_components_1.Radio, { id: 'radio5', value: "departmentVideo", label: store_1.TemplateSelection.departmentVideo }),
                         React.createElement(react_components_1.Radio, { id: 'radio7', value: "Default_ar", label: store_1.TemplateSelection.Default_ar }),
                         React.createElement(react_components_1.Radio, { id: 'radio10', value: "department_ar", label: store_1.TemplateSelection.department_ar }),
-                        React.createElement(react_components_1.Radio, { id: 'radio11', value: "departmentVideo_ar", label: store_1.TemplateSelection.departmentVideo_ar }),
-                        React.createElement(react_components_1.Radio, { id: 'radio12', value: "uae50", label: store_1.TemplateSelection.uae50 }))),
+                        React.createElement(react_components_1.Radio, { id: 'radio11', value: "departmentVideo_ar", label: store_1.TemplateSelection.departmentVideo_ar }))),
                 React.createElement("div", { className: 'card-area' },
                     React.createElement("div", { className: cardAreaBorderClass },
                         React.createElement("div", { className: 'card-area-3' })))),
@@ -799,7 +852,7 @@ var NewMessage = function () {
                                         gridTemplateAreas: 'input-area btn-area',
                                     } },
                                     React.createElement(react_components_1.Input, { size: 'large', style: { gridColumn: '1' }, appearance: 'filled-darker', value: imageFileName || '', placeholder: t('ImageURL'), onChange: onImageLinkChanged }),
-                                    React.createElement(react_components_1.Button, { style: { gridColumn: '2', marginLeft: '5px' }, onClick: handleUploadClick, size: 'large', appearance: 'secondary', "aria-label": imageFileName ? t('UploadImageSuccessful') : t('UploadImageInfo'), icon: React.createElement(react_icons_1.ArrowUpload24Regular, null) }, t('Upload')),
+                                    React.createElement(react_components_1.Button, { style: { gridColumn: '2', marginLeft: '5px' }, onClick: handleUploadClick, size: 'large', appearance: 'secondary', "aria-label": imageFileName ? t('UploadImageSuccessful') : t('UploadImageInfo'), icon: React.createElement(react_icons_2.ArrowUpload24Regular, null) }, t('Upload')),
                                     React.createElement("input", { type: 'file', accept: '.jpg, .jpeg, .png, .gif', style: { display: 'none' }, multiple: false, onChange: handleImageSelection, ref: fileInput }))))),
                     (selectedTemplate === store_1.TemplateSelection.infoVideo
                         || selectedTemplate === store_1.TemplateSelection.departmentVideo
@@ -817,7 +870,7 @@ var NewMessage = function () {
                                         gridTemplateAreas: 'input-area btn-area',
                                     } },
                                     React.createElement(react_components_1.Input, { size: 'large', style: { gridColumn: '1' }, appearance: 'filled-darker', value: posterFileName || '', placeholder: t('PosterURL'), onChange: onPosterLinkChanged }),
-                                    React.createElement(react_components_1.Button, { style: { gridColumn: '2', marginLeft: '5px' }, onClick: handlePosterUploadClick, size: 'large', appearance: 'secondary', "aria-label": posterFileName ? t('UploadImageSuccessful') : t('UploadImageInfo'), icon: React.createElement(react_icons_1.ArrowUpload24Regular, null) }, t('Upload')),
+                                    React.createElement(react_components_1.Button, { style: { gridColumn: '2', marginLeft: '5px' }, onClick: handlePosterUploadClick, size: 'large', appearance: 'secondary', "aria-label": posterFileName ? t('UploadImageSuccessful') : t('UploadImageInfo'), icon: React.createElement(react_icons_2.ArrowUpload24Regular, null) }, t('Upload')),
                                     React.createElement("input", { type: 'file', accept: '.jpg, .jpeg, .png, .gif', style: { display: 'none' }, multiple: false, onChange: handlePosterSelection, ref: posterFileInput }))),
                             React.createElement(react_components_1.Field, { size: 'large', className: field_styles.styles, label: {
                                     children: function (_, imageInfoProps) { return (React.createElement(unstable_1.InfoLabel, __assign({}, imageInfoProps, { info: t('VideoSizeInfoContent') || '' }), t('videoURL'))); },
@@ -857,20 +910,32 @@ var NewMessage = function () {
                             teamsSelectedOptions.length ? (React.createElement("ul", { id: teamsSelectedListId, className: cmb_styles.tagsList, ref: teamsSelectedListRef },
                                 React.createElement("span", { id: "".concat(teamsComboId, "-remove"), hidden: true }, "Remove"),
                                 teamsSelectedOptions.map(function (option, i) { return (React.createElement("li", { key: option.id },
-                                    React.createElement(react_components_1.Button, { size: 'small', shape: 'rounded', appearance: 'subtle', icon: React.createElement(react_icons_1.Dismiss12Regular, null), iconPosition: 'after', onClick: function () { return onTeamsTagClick(option, i); }, id: "".concat(teamsComboId, "-remove-").concat(i), "aria-labelledby": "".concat(teamsComboId, "-remove ").concat(teamsComboId, "-remove-").concat(i) },
+                                    React.createElement(react_components_1.Button, { size: 'small', shape: 'rounded', appearance: 'subtle', icon: React.createElement(react_icons_2.Dismiss12Regular, null), iconPosition: 'after', onClick: function () { return onTeamsTagClick(option, i); }, id: "".concat(teamsComboId, "-remove-").concat(i), "aria-labelledby": "".concat(teamsComboId, "-remove ").concat(teamsComboId, "-remove-").concat(i) },
                                         React.createElement(react_components_1.Persona, { name: option.name, secondaryText: 'Team', avatar: { shape: 'square', color: 'colorful' } })))); }))) : (React.createElement(React.Fragment, null)),
-                            React.createElement(react_components_1.Combobox, { multiselect: true, selectedOptions: teamsSelectedOptions.map(function (op) { return op.id; }), appearance: 'filled-darker', size: 'large', onOptionSelect: onTeamsSelect, ref: teamsComboboxInputRef, "aria-labelledby": teamsLabelledBy, placeholder: teams.length !== 0 ? 'Pick one or more teams' : t('NoMatchMessage') }, teams.map(function (opt) { return (React.createElement(react_components_1.Option, { text: opt.name, value: opt.id, key: opt.id },
-                                React.createElement(react_components_1.Persona, { name: opt.name, secondaryText: 'Team', avatar: { shape: 'square', color: 'colorful' } }))); })))),
+                            React.createElement("div", { className: cmb_styles.root },
+                                React.createElement("div", { className: cmb_styles.combobox },
+                                    React.createElement("div", { className: cmb_styles.comboboxInputContainer },
+                                        React.createElement("input", { type: "text", className: cmb_styles.comboboxInput, ref: teamsComboboxInputRef, placeholder: teams.length !== 0 ? 'Pick one or more teams' : t('NoMatchMessage'), onClick: function () { return handleInputClick(teamsComboboxOptionRef); }, "aria-labelledby": teamsLabelledBy }),
+                                        React.createElement("div", { className: cmb_styles.comboboxIcon, onClick: function () { return handleInputClick(teamsComboboxOptionRef); } },
+                                            React.createElement(react_icons_1.ChevronDownRegular, null))),
+                                    React.createElement("ul", { className: "".concat(cmb_styles.comboboxOptions, " combobox-options"), ref: teamsComboboxOptionRef }, teams.map(function (opt) { return (React.createElement("li", { className: cmb_styles.comboboxOption, key: opt.id, onClick: function () { return onTeamsSelectOpt(opt); } },
+                                        React.createElement(react_components_1.Persona, { name: opt.name, secondaryText: 'Team', avatar: { shape: 'square', color: 'colorful' } }))); })))))),
                         React.createElement(react_components_1.Radio, { id: 'radio2', value: AudienceSelection.Rosters, label: t('SendToRosters') }),
                         selectedRadioButton === AudienceSelection.Rosters && (React.createElement("div", { className: cmb_styles.root },
                             React.createElement(react_components_1.Label, { id: rostersComboId }, "Pick team(s)"),
                             rostersSelectedOptions.length ? (React.createElement("ul", { id: rostersSelectedListId, className: cmb_styles.tagsList, ref: rostersSelectedListRef },
                                 React.createElement("span", { id: "".concat(rostersComboId, "-remove"), hidden: true }, "Remove"),
                                 rostersSelectedOptions.map(function (option, i) { return (React.createElement("li", { key: option.id },
-                                    React.createElement(react_components_1.Button, { size: 'small', shape: 'rounded', appearance: 'subtle', icon: React.createElement(react_icons_1.Dismiss12Regular, null), iconPosition: 'after', onClick: function () { return onRostersTagClick(option, i); }, id: "".concat(rostersComboId, "-remove-").concat(i), "aria-labelledby": "".concat(rostersComboId, "-remove ").concat(rostersComboId, "-remove-").concat(i) },
+                                    React.createElement(react_components_1.Button, { size: 'small', shape: 'rounded', appearance: 'subtle', icon: React.createElement(react_icons_2.Dismiss12Regular, null), iconPosition: 'after', onClick: function () { return onRostersTagClick(option, i); }, id: "".concat(rostersComboId, "-remove-").concat(i), "aria-labelledby": "".concat(rostersComboId, "-remove ").concat(rostersComboId, "-remove-").concat(i) },
                                         React.createElement(react_components_1.Persona, { name: option.name, secondaryText: 'Team', avatar: { shape: 'square', color: 'colorful' } })))); }))) : (React.createElement(React.Fragment, null)),
-                            React.createElement(react_components_1.Combobox, { multiselect: true, selectedOptions: rostersSelectedOptions.map(function (op) { return op.id; }), appearance: 'filled-darker', size: 'large', onOptionSelect: onRostersSelect, ref: rostersComboboxInputRef, "aria-labelledby": rostersLabelledBy, placeholder: teams.length !== 0 ? 'Pick one or more teams' : t('NoMatchMessage') }, teams.map(function (opt) { return (React.createElement(react_components_1.Option, { text: opt.name, value: opt.id, key: opt.id },
-                                React.createElement(react_components_1.Persona, { name: opt.name, secondaryText: 'Team', avatar: { shape: 'square', color: 'colorful' } }))); })))),
+                            React.createElement("div", { className: cmb_styles.root },
+                                React.createElement("div", { className: cmb_styles.combobox },
+                                    React.createElement("div", { className: cmb_styles.comboboxInputContainer },
+                                        React.createElement("input", { type: "text", className: cmb_styles.comboboxInput, ref: teamsComboboxInputRef, placeholder: teams.length !== 0 ? 'Pick one or more teams' : t('NoMatchMessage'), onClick: function () { return handleInputClick(rosterComboboxOptionRef); }, "aria-labelledby": rostersLabelledBy }),
+                                        React.createElement("div", { className: cmb_styles.comboboxIcon, onClick: function () { return handleInputClick(rosterComboboxOptionRef); } },
+                                            React.createElement(react_icons_1.ChevronDownRegular, null))),
+                                    React.createElement("ul", { className: "".concat(cmb_styles.comboboxOptions, " combobox-options"), ref: rosterComboboxOptionRef }, teams.map(function (opt) { return (React.createElement("li", { className: cmb_styles.comboboxOption, key: opt.id, onClick: function () { return onRosterSelectOpt(opt); } },
+                                        React.createElement(react_components_1.Persona, { name: opt.name, secondaryText: 'Team', avatar: { shape: 'square', color: 'colorful' } }))); })))))),
                         React.createElement(react_components_1.Radio, { id: 'radio3', value: AudienceSelection.AllUsers, label: t('SendToAllUsers') }),
                         React.createElement("div", { className: cmb_styles.root }, selectedRadioButton === AudienceSelection.AllUsers && (React.createElement(react_components_1.Text, { id: 'radio3Note', role: allUsersAria, className: 'info-text' }, t('SendToAllUsersNote')))),
                         React.createElement(react_components_1.Radio, { id: 'radio4', value: AudienceSelection.Groups, label: t('SendToGroups') }),
@@ -881,10 +946,16 @@ var NewMessage = function () {
                                 searchSelectedOptions.length ? (React.createElement("ul", { id: searchSelectedListId, className: cmb_styles.tagsList, ref: searchSelectedListRef },
                                     React.createElement("span", { id: "".concat(searchComboId, "-remove"), hidden: true }, "Remove"),
                                     searchSelectedOptions.map(function (option, i) { return (React.createElement("li", { key: option.id },
-                                        React.createElement(react_components_1.Button, { size: 'small', shape: 'rounded', appearance: 'subtle', icon: React.createElement(react_icons_1.Dismiss12Regular, null), iconPosition: 'after', onClick: function () { return onSearchTagClick(option, i); }, id: "".concat(searchComboId, "-remove-").concat(i), "aria-labelledby": "".concat(searchComboId, "-remove ").concat(searchComboId, "-remove-").concat(i) },
+                                        React.createElement(react_components_1.Button, { size: 'small', shape: 'rounded', appearance: 'subtle', icon: React.createElement(react_icons_2.Dismiss12Regular, null), iconPosition: 'after', onClick: function () { return onSearchTagClick(option, i); }, id: "".concat(searchComboId, "-remove-").concat(i), "aria-labelledby": "".concat(searchComboId, "-remove ").concat(searchComboId, "-remove-").concat(i) },
                                             React.createElement(react_components_1.Persona, { name: option.name, secondaryText: 'Group', avatar: { color: 'colorful' } })))); }))) : (React.createElement(React.Fragment, null)),
-                                React.createElement(react_components_1.Combobox, { appearance: 'filled-darker', size: 'large', onOptionSelect: onSearchSelect, onChange: onSearchChange, "aria-labelledby": searchLabelledBy, placeholder: 'Search for groups' }, queryGroups.map(function (opt) { return (React.createElement(react_components_1.Option, { text: opt.name, value: opt.id, key: opt.id },
-                                    React.createElement(react_components_1.Persona, { name: opt.name, secondaryText: 'Group', avatar: { color: 'colorful' } }))); })),
+                                React.createElement("div", { className: cmb_styles.root },
+                                    React.createElement("div", { className: cmb_styles.combobox },
+                                        React.createElement("div", { className: cmb_styles.comboboxInputContainer },
+                                            React.createElement("input", { type: "text", className: cmb_styles.comboboxInput, ref: teamsComboboxInputRef, placeholder: teams.length !== 0 ? 'Pick one or more teams' : t('NoMatchMessage'), onClick: function () { return handleInputClick(searchComboboxOptionRef); }, "aria-labelledby": searchLabelledBy }),
+                                            React.createElement("div", { className: cmb_styles.comboboxIcon, onClick: function () { return handleInputClick(searchComboboxOptionRef); } },
+                                                React.createElement(react_icons_1.ChevronDownRegular, null))),
+                                        React.createElement("ul", { className: "".concat(cmb_styles.comboboxOptions, " combobox-options"), ref: searchComboboxOptionRef }, queryGroups.map(function (opt) { return (React.createElement("li", { className: cmb_styles.comboboxOption, key: opt.id, onClick: function () { return onSearchSelectOpt(opt); } },
+                                            React.createElement(react_components_1.Persona, { name: opt.name, secondaryText: 'Team', avatar: { shape: 'square', color: 'colorful' } }))); })))),
                                 React.createElement(react_components_1.Text, { role: groupsAria, className: 'info-text' }, t('SendToGroupsNote')))))))),
                 React.createElement("div", { className: 'card-area' },
                     React.createElement("div", { className: cardAreaBorderClass },

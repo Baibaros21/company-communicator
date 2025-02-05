@@ -421,7 +421,7 @@ export const ModifyDefaultsTask = () => {
                             <div className="cc-main-left">
                                 <img
                                     src={headerLogoImagePath}
-                                    alt="Microsoft logo"
+                                    alt="logo"
                                     className="cc-logo"
                                     title={headerText}
                                 />

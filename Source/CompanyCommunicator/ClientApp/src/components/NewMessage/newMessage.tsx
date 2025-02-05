@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
+import './newMessages.scss';
+import {
+    ChevronDownRegular
+ } from '@fluentui/react-icons';
 import * as AdaptiveCards from 'adaptivecards';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -79,12 +82,72 @@ interface IDefaults {
 
 const useComboboxStyles = makeStyles({
     root: {
-        // Stack the label above the field with a gap
         display: 'grid',
         gridTemplateRows: 'repeat(1fr)',
         justifyItems: 'start',
         ...shorthands.gap('2px'),
         paddingLeft: '36px',
+    },
+    combobox: {
+        position: 'relative',
+        width: '100%',
+        backgroundColor: tokens.colorNeutralBackground3,
+    },
+    comboboxInputContainer: {
+        display: 'flex',
+        alignItems: 'center',
+        width: '100%',
+        borderBlockColor: tokens.colorTransparentStroke,
+        borderInlineColor: tokens.colorTransparentStroke,
+
+        ...shorthands.borderRadius("4px"),
+        ...shorthands.borderWidth('0px'),
+        ...shorthands.borderStyle('solid'),
+        ...shorthands.padding('1px', '4px'),
+    },
+    comboboxInput: {
+        width: '100%',
+        backgroundColor: tokens.colorNeutralBackground3,
+        fontSize: tokens.fontSizeBase400,
+        fontWeight: tokens.fontWeightRegular,
+        color: tokens.colorNeutralForeground1,
+        height: '38px',
+        paddingLeft: tokens.spacingHorizontalM,
+
+        borderBlockColor: tokens.colorTransparentStroke,
+        borderInlineColor: tokens.colorTransparentStroke,
+
+        ...shorthands.borderRadius("4px"),
+        ...shorthands.borderWidth('0px'),
+        ...shorthands.borderStyle('solid'),
+        ...shorthands.padding('1px', '2px'),
+    },
+    comboboxIcon: {
+        ...shorthands.padding('10px'),
+        cursor: 'pointer',
+    },
+    comboboxOptions: {
+        listStyleType: 'none',
+        backgroundColor: tokens.colorTransparentBackground,
+
+        position: 'absolute',
+        width: '100%',
+        ...shorthands.borderRadius(tokens.borderRadiusMedium),
+
+        maxHeight: '200px',
+        overflowY: 'auto',
+        zIndex: 1000,
+        display: 'none', // Initially hidden
+    },
+    comboboxOption: {
+
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        backgroundColor: tokens.colorNeutralBackground1,
+    },
+    comboboxOptionHover: {
+        backgroundColor: tokens.colorNeutralBackground1Hover,
     },
     tagsList: {
         listStyleType: 'none',
@@ -95,6 +158,8 @@ const useComboboxStyles = makeStyles({
         gridGap: tokens.spacingHorizontalXXS,
     },
 });
+
+
 
 const useFieldStyles = makeStyles({
     styles: {
@@ -366,21 +431,6 @@ export const NewMessage = () => {
     };
 
 
-    /*const setDefaultCard = (card: any) => {
-        const titleAsString = t('TitleText');
-        const summaryAsString = t('Summary');
-        const authorAsString = t('Author');
-        const departmentAsString = t('Department');
-        const buttonTitleAsString = t('ButtonTitle');
-        setCardTitle(card, titleAsString);
-        let imgUrl = getBaseUrl() + '/image/imagePlaceholder.png';
-        setCardImageLink(card, imgUrl);
-        setCardVideoPlayerPoster(card, imgUrl);
-        setCardDeptTitle(card, departmentAsString);
-        setCardSummary(card, summaryAsString);
-        setCardAuthor(card, authorAsString);
-        setCardBtn(card, buttonTitleAsString, 'https://adaptivecards.io');
-    };*/
 
     const updateAdaptiveCard = () => {
         var adaptiveCard = new AdaptiveCards.AdaptiveCard();
@@ -774,16 +824,57 @@ export const NewMessage = () => {
     // refs for managing focus when removing tags
     const teamsSelectedListRef = React.useRef<HTMLUListElement>(null);
     const teamsComboboxInputRef = React.useRef<HTMLInputElement>(null);
+    const teamsComboboxOptionRef = React.useRef<HTMLUListElement>(null);
+
 
     const rostersSelectedListRef = React.useRef<HTMLUListElement>(null);
     const rostersComboboxInputRef = React.useRef<HTMLInputElement>(null);
+    const rosterComboboxOptionRef = React.useRef<HTMLUListElement>(null);
+
 
     const searchSelectedListRef = React.useRef<HTMLUListElement>(null);
     const searchComboboxInputRef = React.useRef<HTMLInputElement>(null);
+    const searchComboboxOptionRef = React.useRef<HTMLUListElement>(null);
 
+
+    //Custom Combobox functions
+    const handleInputClick = (optionList: React.MutableRefObject<HTMLUListElement | null>) => {
+        if (optionList.current && optionList.current.style) {
+            optionList.current.style.display = 'block';
+        }
+    };
+    const handleClickOutside = (event: MouseEvent) => {
+
+        if (teamsComboboxOptionRef.current && teamsComboboxOptionRef.current.style) {
+            teamsComboboxOptionRef.current.style.display = 'none';
+        }
+        if (rosterComboboxOptionRef.current && rosterComboboxOptionRef.current.style) {
+            rosterComboboxOptionRef.current.style.display = 'none';
+        }
+        if (searchComboboxOptionRef.current && searchComboboxOptionRef.current.style) {
+            searchComboboxOptionRef.current.style.display = 'none';
+        }
+    };
+    React.useEffect(() => {
+        document.addEventListener('click', handleClickOutside);
+        return () => {
+            document.removeEventListener('click', handleClickOutside);
+        };
+    }, []);
+
+    //functions for handling teams. groups and users
     const onTeamsSelect: ComboboxProps['onOptionSelect'] = (event, data) => {
         if (data.selectedOptions.length <= MAX_SELECTED_TEAMS_NUM) {
             setTeamsSelectedOptions(teams.filter((t1) => data.selectedOptions.some((t2) => t2 === t1.id)));
+        }
+    };
+
+    const onTeamsSelectOpt = (opt: ITeamTemplate) => {
+        if (teamsSelectedOptions.length < MAX_SELECTED_TEAMS_NUM) {
+            const teamExists = teamsSelectedOptions.some(team => team.id === opt.id);
+            if (!teamExists) {
+                setTeamsSelectedOptions([...teamsSelectedOptions, opt]);
+            }
         }
     };
 
@@ -793,9 +884,27 @@ export const NewMessage = () => {
         }
     };
 
+    const onRosterSelectOpt = (opt: ITeamTemplate) => {
+        if (rostersSelectedOptions.length < MAX_SELECTED_TEAMS_NUM) {
+            const teamExists = rostersSelectedOptions.some(team => team.id === opt.id);
+            if (!teamExists) {
+                setRostersSelectedOptions([...rostersSelectedOptions, opt]);
+            }
+        }
+    };
+
     const onSearchSelect: ComboboxProps['onOptionSelect'] = (event, data: any) => {
         if (data.optionText && !searchSelectedOptions.find((x) => x.id === data.optionValue)) {
             setSearchSelectedOptions([...searchSelectedOptions, { id: data.optionValue, name: data.optionText }]);
+        }
+    };
+
+    const onSearchSelectOpt = (opt: ITeamTemplate) => {
+        if (searchSelectedOptions.length < MAX_SELECTED_TEAMS_NUM) {
+            const teamExists = searchSelectedOptions.some(team => team.id === opt.id);
+            if (!teamExists) {
+                setSearchSelectedOptions([...searchSelectedOptions, opt]);
+            }
         }
     };
 
@@ -895,7 +1004,7 @@ export const NewMessage = () => {
 
                                 <Radio id='radio11' value="departmentVideo_ar" label={TemplateSelection.departmentVideo_ar} />
 
-                                <Radio id='radio12' value="uae50" label={TemplateSelection.uae50} />
+
 
                             </RadioGroup>
                         </div>
@@ -933,8 +1042,6 @@ export const NewMessage = () => {
                     </div>
                 </>
             )}
-
-
             {pageSelection === CurrentPageSelection.CardCreation && Templates && Templates.length > 0 && (
                 <div className="page-container">
                     <span role='alert' aria-label={t('NewMessageStep1')} />
@@ -1233,7 +1340,40 @@ export const NewMessage = () => {
                                         ) : (
                                             <></>
                                         )}
-                                        <Combobox
+
+                                        <div className={cmb_styles.root}>
+                                            <div className={cmb_styles.combobox}>
+
+                                                <div className={cmb_styles.comboboxInputContainer}>
+
+                                                    <input
+                                                        type="text"
+                                                        className={cmb_styles.comboboxInput}
+                                                        ref={teamsComboboxInputRef}
+                                                        placeholder={teams.length !== 0 ? 'Pick one or more teams' : t('NoMatchMessage')}
+                                                        onClick={() => handleInputClick(teamsComboboxOptionRef)}
+                                                        aria-labelledby={teamsLabelledBy}
+                                                    />
+                                                    <div className={cmb_styles.comboboxIcon} onClick={() => handleInputClick(teamsComboboxOptionRef)}>
+                                                        <ChevronDownRegular />
+                                                    </div>
+
+                                                </div>
+                                                <ul className={`${cmb_styles.comboboxOptions} combobox-options`} ref={teamsComboboxOptionRef}>
+                                                    {teams.map((opt) => (
+                                                        <li
+                                                            className={cmb_styles.comboboxOption}
+                                                            key={opt.id}
+                                                            onClick={() => onTeamsSelectOpt(opt)}
+                                                        >
+                                                            <Persona name={opt.name} secondaryText={'Team'} avatar={{ shape: 'square', color: 'colorful' }} />
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        {/*    <Combobox
                                             multiselect={true}
                                             selectedOptions={teamsSelectedOptions.map((op) => op.id)}
                                             appearance='filled-darker'
@@ -1248,7 +1388,7 @@ export const NewMessage = () => {
                                                     <Persona name={opt.name} secondaryText={'Team'} avatar={{ shape: 'square', color: 'colorful' }} />
                                                 </Option>
                                             ))}
-                                        </Combobox>
+                                        </Combobox>*/}
                                     </div>
                                 )}
                                 <Radio id='radio2' value={AudienceSelection.Rosters} label={t('SendToRosters')} />
@@ -1281,7 +1421,41 @@ export const NewMessage = () => {
                                         ) : (
                                             <></>
                                         )}
-                                        <Combobox
+
+                                        <div className={cmb_styles.root}>
+                                            <div className={cmb_styles.combobox}>
+
+                                                <div className={cmb_styles.comboboxInputContainer}>
+
+                                                    <input
+                                                        type="text"
+                                                        className={cmb_styles.comboboxInput}
+                                                        ref={teamsComboboxInputRef}
+                                                        placeholder={teams.length !== 0 ? 'Pick one or more teams' : t('NoMatchMessage')}
+                                                        onClick={() => handleInputClick(rosterComboboxOptionRef)}
+                                                        aria-labelledby={rostersLabelledBy}
+                                                    />
+                                                    <div className={cmb_styles.comboboxIcon} onClick={() => handleInputClick(rosterComboboxOptionRef)}>
+                                                        <ChevronDownRegular />
+
+                                                    </div>
+
+                                                </div>
+                                                <ul className={`${cmb_styles.comboboxOptions} combobox-options`} ref={rosterComboboxOptionRef}>
+                                                    {teams.map((opt) => (
+                                                        <li
+                                                            className={cmb_styles.comboboxOption}
+                                                            key={opt.id}
+                                                            onClick={() => onRosterSelectOpt(opt)}
+                                                        >
+                                                            <Persona name={opt.name} secondaryText={'Team'} avatar={{ shape: 'square', color: 'colorful' }} />
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        {/* <Combobox
                                             multiselect={true}
                                             selectedOptions={rostersSelectedOptions.map((op) => op.id)}
                                             appearance='filled-darker'
@@ -1296,7 +1470,7 @@ export const NewMessage = () => {
                                                     <Persona name={opt.name} secondaryText={'Team'} avatar={{ shape: 'square', color: 'colorful' }} />
                                                 </Option>
                                             ))}
-                                        </Combobox>
+                                        </Combobox> */}
                                     </div>
                                 )}
                                 <Radio id='radio3' value={AudienceSelection.AllUsers} label={t('SendToAllUsers')} />
@@ -1344,7 +1518,39 @@ export const NewMessage = () => {
                                                 ) : (
                                                     <></>
                                                 )}
-                                                <Combobox
+                                                                                        <div className={cmb_styles.root}>
+                                            <div className={cmb_styles.combobox}>
+
+                                                <div className={cmb_styles.comboboxInputContainer}>
+
+                                                    <input
+                                                        type="text"
+                                                        className={cmb_styles.comboboxInput}
+                                                        ref={teamsComboboxInputRef}
+                                                        placeholder={teams.length !== 0 ? 'Pick one or more teams' : t('NoMatchMessage')}
+                                                                onClick={() => handleInputClick(searchComboboxOptionRef)}
+                                                                aria-labelledby={searchLabelledBy}
+                                                    />
+                                                            <div className={cmb_styles.comboboxIcon} onClick={() => handleInputClick(searchComboboxOptionRef)}>
+                                                                <ChevronDownRegular />
+                                                    </div>
+
+                                                </div>
+                                                <ul className={`${cmb_styles.comboboxOptions} combobox-options`} ref={searchComboboxOptionRef}>
+                                                    {queryGroups.map((opt) => (
+                                                        <li
+                                                            className={cmb_styles.comboboxOption}
+                                                            key={opt.id}
+                                                            onClick={() => onSearchSelectOpt(opt)}
+                                                        >
+                                                            <Persona name={opt.name} secondaryText={'Team'} avatar={{ shape: 'square', color: 'colorful' }} />
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                                {/* <Combobox
                                                     appearance='filled-darker'
                                                     size='large'
                                                     onOptionSelect={onSearchSelect}
@@ -1357,7 +1563,7 @@ export const NewMessage = () => {
                                                             <Persona name={opt.name} secondaryText={'Group'} avatar={{ color: 'colorful' }} />
                                                         </Option>
                                                     ))}
-                                                </Combobox>
+                                                </Combobox> */}
                                                 <Text role={groupsAria} className='info-text'>
                                                     {t('SendToGroupsNote')}
                                                 </Text>
