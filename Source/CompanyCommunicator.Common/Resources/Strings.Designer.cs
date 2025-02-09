@@ -19,7 +19,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Strings {
@@ -88,6 +88,24 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Author.
+        /// </summary>
+        public static string ColumnName_Author {
+            get {
+                return ResourceManager.GetString("ColumnName_Author", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Created By.
+        /// </summary>
+        public static string ColumnName_CreatedBy {
+            get {
+                return ResourceManager.GetString("ColumnName_CreatedBy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Delivery Status.
         /// </summary>
         public static string ColumnName_DeliveryStatus {
@@ -124,11 +142,56 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed.
+        /// </summary>
+        public static string ColumnName_Failed {
+            get {
+                return ResourceManager.GetString("ColumnName_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Heart.
+        /// </summary>
+        public static string ColumnName_Heart {
+            get {
+                return ResourceManager.GetString("ColumnName_Heart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Laugh.
+        /// </summary>
+        public static string ColumnName_Laugh {
+            get {
+                return ResourceManager.GetString("ColumnName_Laugh", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Likes.
+        /// </summary>
+        public static string ColumnName_Like {
+            get {
+                return ResourceManager.GetString("ColumnName_Like", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Message Title.
         /// </summary>
         public static string ColumnName_MessageTitle {
             get {
                 return ResourceManager.GetString("ColumnName_MessageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Seen.
+        /// </summary>
+        public static string ColumnName_Seen {
+            get {
+                return ResourceManager.GetString("ColumnName_Seen", resourceCulture);
             }
         }
         
@@ -147,6 +210,24 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Resources {
         public static string ColumnName_StatusReason {
             get {
                 return ResourceManager.GetString("ColumnName_StatusReason", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Succeeded.
+        /// </summary>
+        public static string ColumnName_Succeeded {
+            get {
+                return ResourceManager.GetString("ColumnName_Succeeded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Surprised.
+        /// </summary>
+        public static string ColumnName_Surprise {
+            get {
+                return ResourceManager.GetString("ColumnName_Surprise", resourceCulture);
             }
         }
         

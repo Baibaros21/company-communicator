@@ -265,4 +265,31 @@
   <data name="ColumnName_Error" xml:space="preserve">
     <value>Error</value>
   </data>
+  <data name="ColumnName_Author" xml:space="preserve">
+    <value>Author</value>
+  </data>
+  <data name="ColumnName_CreatedBy" xml:space="preserve">
+    <value>Created By</value>
+  </data>
+  <data name="ColumnName_Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="ColumnName_Heart" xml:space="preserve">
+    <value>Heart</value>
+  </data>
+  <data name="ColumnName_Laugh" xml:space="preserve">
+    <value>Laugh</value>
+  </data>
+  <data name="ColumnName_Like" xml:space="preserve">
+    <value>Likes</value>
+  </data>
+  <data name="ColumnName_Seen" xml:space="preserve">
+    <value>Seen</value>
+  </data>
+  <data name="ColumnName_Succeeded" xml:space="preserve">
+    <value>Succeeded</value>
+  </data>
+  <data name="ColumnName_Surprise" xml:space="preserve">
+    <value>Surprised</value>
+  </data>
 </root>

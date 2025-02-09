@@ -92,6 +92,15 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Prep.Func.Export.Activities
             {
                 MessageTitle = notificationDataEntity.Title,
                 SentTimeStamp = notificationDataEntity.SentDate,
+                CreatedBy = notificationDataEntity.CreatedBy,
+                Like= notificationDataEntity.Like,
+                Heart= notificationDataEntity.Heart,
+                Laugh= notificationDataEntity.Laugh,
+                Surprise = notificationDataEntity.Surprise,
+                Author  = notificationDataEntity.Author,
+                Succeeded = notificationDataEntity.Succeeded,
+                Failed = notificationDataEntity.Failed,
+                Seen = notificationDataEntity.Seen,
                 ExportedBy = userPrinicipalName,
                 ExportTimeStamp = exportDataEntity.SentDate,
             };
