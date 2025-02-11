@@ -20,7 +20,7 @@ name: Deploy DotNet project to Azure Function App
 
 on:
   push:
-    branches: ["main"]
+    branches: ["DubaiHodling"]
 
 env:
   AZURE_FUNCTIONAPP_NAME: 'MersalV6-prep-function'   # set this to your function app name on Azure
