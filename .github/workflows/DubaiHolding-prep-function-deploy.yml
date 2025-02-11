@@ -29,7 +29,7 @@ env:
   AZURE_FUNCTIONAPP_NAME: 'dhComCast-prep-function'   # set this to your function app name on Azure
   AZURE_FUNCTIONAPP_PACKAGE_PATH: './Source/CompanyCommunicator.Prep.Func/' # set this to the path to your function app project, defaults to the repository root
   DOTNET_VERSION: '6.0.x'                   # set this to the dotnet version to use (e.g. '2.1.x', '3.1.x', '5.0.x')
-  PUBLISH_PROFILE: ${{ secrets.DubaiHolding_PREP_FUNCTION_PP }}
+  PUBLISH_PROFILE: ${{ secrets.DUBAIHOLDING_PREP_FUNCTION_PP }}
 jobs:
   build-and-deploy:
     runs-on: windows-latest # For Linux, use ubuntu-latest
