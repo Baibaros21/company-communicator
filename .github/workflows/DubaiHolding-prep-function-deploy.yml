@@ -19,11 +19,12 @@
 name: Deploy Dubai Holding Prep Function App
 
 on:
+  workflow_dispatch:
   push:
     branches: ["DubaiHodling"]
     paths:
       - 'Source/CompanyCommunicator.Prep.Func/**'
-  workflow_dispatch: 
+  
 
 env:
   AZURE_FUNCTIONAPP_NAME: 'dhComCast-prep-function'   # set this to your function app name on Azure
