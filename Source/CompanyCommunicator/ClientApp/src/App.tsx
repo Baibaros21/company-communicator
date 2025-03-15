@@ -3,7 +3,8 @@
 
 import './App.scss';
 import i18n from 'i18next';
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
+import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import {
@@ -28,6 +29,7 @@ import { ModifyTemplatesTask } from './components/ModifyTemplatesTask/modifyTemp
 
 export const App = () => {
     const [fluentUITheme, setFluentUITheme] = React.useState(teamsLightTheme);
+    const [themeName, setThemeName] = React.useState("default");
     const [locale, setLocale] = React.useState("en-US");
     const { t } = useTranslation();
 
@@ -48,12 +50,15 @@ export const App = () => {
         switch (theme.toLocaleLowerCase()) {
             case "default":
                 setFluentUITheme(teamsLightTheme);
+                setThemeName("default");
                 break;
             case "dark":
                 setFluentUITheme(teamsDarkTheme);
+                setThemeName("dark");
                 break;
             case "contrast":
                 setFluentUITheme(teamsHighContrastTheme);
+                setThemeName("contrast");
                 break;
         }
     };
@@ -65,8 +70,8 @@ export const App = () => {
                 <Suspense fallback={<div></div>}>
                     <BrowserRouter>
                         <Switch>
-                            <Route exact path={`/${ROUTE_PARTS.CONFIG_TAB}`} component={Configuration} />
-                            <Route exact path={`/${ROUTE_PARTS.MESSAGES}`} render={() => <MainContainer theme={fluentUITheme} />} />
+{/*                            <Route exact path={`/${ROUTE_PARTS.CONFIG_TAB}`} component={Configuration} />
+*/}                            <Route exact path={`/${ROUTE_PARTS.MESSAGES}`} render={() => <MainContainer theme={fluentUITheme} themeName={themeName}/>} />
                             <Route exact path={`/${ROUTE_PARTS.NEW_MESSAGE}`} component={NewMessage} />
                             <Route exact path={`/${ROUTE_PARTS.NEW_MESSAGE}/:${ROUTE_PARAMS.ID}`} component={NewMessage} />
                             <Route exact path={`/${ROUTE_PARTS.VIEW_STATUS}/:${ROUTE_PARAMS.ID}`} component={ViewStatusTask} />

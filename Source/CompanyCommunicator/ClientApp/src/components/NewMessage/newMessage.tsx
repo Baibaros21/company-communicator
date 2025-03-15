@@ -277,8 +277,8 @@ export const NewMessage = () => {
                 if (messageState.department !== "") setCardDeptTitle(card, messageState.department);
                 if (messageState.summary !== "") setCardSummary(card, messageState.summary);
                 if (messageState.author !== "") setCardAuthor(card, messageState.author);
-                setCardLogo(card, defaultsState.logoLink);
-                setCardBanner(card, defaultsState.bannerLink);
+                if (defaultsState.logoLink!=="") setCardLogo(card, defaultsState.logoLink);
+                if (defaultsState.bannerLink!=="") setCardBanner(card, defaultsState.bannerLink);
                 if (messageState.buttonTitle !== "") setCardBtn(card, messageState.buttonTitle, messageState.buttonLink);
                 if (!messageState.title && !messageState.imageLink && !messageState.summary && !messageState.author && !messageState.buttonTitle && !messageState.buttonLink) {
                     getCurrentCardTemplate(selectedTemplate);

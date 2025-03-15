@@ -91,5 +91,6 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.Notificat
         /// <param name="blobName">Blob name.</param>
         /// <returns>Image in base64 format.</returns>
         public Task<string> GetImageAsync(string prefix, string blobName);
+        Task DeleteImageAsync(string blobName);
     }
 }

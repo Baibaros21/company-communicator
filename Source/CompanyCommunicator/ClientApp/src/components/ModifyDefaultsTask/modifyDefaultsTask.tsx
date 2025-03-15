@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Field, Input, LabelProps, makeStyles, tokens, Divider } from '@fluentui/react-components';
 import { InfoLabel } from '@fluentui/react-components/unstable';
-import { ArrowUpload24Regular } from '@fluentui/react-icons';
+import { ArrowUpload24Regular,Delete24Regular } from '@fluentui/react-icons';
 import * as microsoftTeams from '@microsoft/teams-js';
 import { getDefaultData, updateDefaultData } from '../../apis/messageListApi';
 import { getInitAdaptiveCard, setCardBanner, setCardLogo } from '../AdaptiveCard/adaptiveCard';
@@ -30,6 +30,8 @@ interface IDefaults {
     bannerFileName: string;
     bannerLink: string;
     headerLogoLink: string;
+    headerText?: string;
+    headerLogoFileName?: string;
 }
 
 
@@ -47,7 +49,7 @@ export const ModifyDefaultsTask = () => {
     const [logoFileName, setLogoFileName] = React.useState('');
     const [headerLogoFileName, setHeaderLogoFileName] = React.useState('');
     const [bannerFileName, setBannerFileName] = React.useState('');
-    const [headerLogoImagePath, setHeaderLogoImagePath] = React.useState<any>(mslogo);
+    const [headerLogoImagePath, setHeaderLogoImagePath] = React.useState<any>(null);
     const [headerText, setHeaderText] = React.useState<any>();
     const [imageUploadErrorMessage, setImageUploadErrorMessage] = React.useState('');
     const [cardAreaBorderClass, setCardAreaBorderClass] = React.useState('card-area-border');
@@ -56,7 +58,9 @@ export const ModifyDefaultsTask = () => {
         logoLink: "",
         bannerLink: "",
         bannerFileName: "",
-        headerLogoLink: ""
+        headerLogoLink: "",
+        headerText: "",
+        headerLogoFileName: ""
     });
 
     React.useEffect(() => {
@@ -76,11 +80,14 @@ export const ModifyDefaultsTask = () => {
                     logoLink: defaultImages.logoLink,
                     bannerFileName: defaultImages.bannerFileName,
                     bannerLink: defaultImages.bannerLink,
-                    headerLogoLink: defaultImages.headerLogoLink
+                    headerLogoLink: defaultImages.headerLogoLink,
+                    headerLogoFileName: defaultImages.headerLogoFileName,
+                    headerText: defaultImages.headerText
                 });
 
                 setHeaderLogoImagePath(defaultImages.headerLogoLink);
                 card = getInitAdaptiveCard("title", "viewDefaults");
+                setHeaderText(defaultImages.headerText);
                 setCardLogo(card, defaultImages.logoLink);
                 setCardBanner(card, defaultImages.bannerLink);
                 updateAdaptiveCard();
@@ -92,6 +99,18 @@ export const ModifyDefaultsTask = () => {
             updateAdaptiveCard();
         }
     }
+    const updateAdaptiveCard = () => {
+        var adaptiveCard = new AdaptiveCards.AdaptiveCard();
+        adaptiveCard.parse(card);
+        const renderCard = adaptiveCard.render();
+
+        document.getElementsByClassName('card-area-1')[0].innerHTML = '';
+        document.getElementsByClassName('card-area-1')[0].appendChild(renderCard);
+        setCardAreaBorderClass('card-area-border');
+        adaptiveCard.onExecuteAction = function (action: any) {
+            window.open(action.url, '_blank');
+        };
+    };
 
     const onLogoLinkChanged = (event: any) => {
         const urlOrDataUrl = event.target.value;
@@ -120,7 +139,24 @@ export const ModifyDefaultsTask = () => {
             updateAdaptiveCard();
         }
     };
+    const onLogoLinkDelete = (event: any) => {
+        setCardLogo(card, "");
+        setLogoFileName('');
+        updateAdaptiveCard();
+        setDefaultState({ ...defaultsState, logoLink: 'DELETE' });
+    }
+    const handleLogoUploadClick = (event: any) => {
+        if (logoFileInput.current) {
+            logoFileInput.current.click();
+        }
+    };
+    const handleLogoSelection = () => {
+        const file = logoFileInput.current?.files[0];
 
+        imageselection(file, "logo");
+
+
+    };
 
     const onBannerLinkChanged = (event: any) => {
         const urlOrDataUrl = event.target.value;
@@ -150,6 +186,24 @@ export const ModifyDefaultsTask = () => {
             updateAdaptiveCard();
         }
     };
+    const onBannerLinkDelete = (event: any) => {
+        setCardBanner(card, "");
+        setBannerFileName('');
+        updateAdaptiveCard();
+        setDefaultState({ ...defaultsState, bannerLink: 'DELETE' });
+    }
+    const handleBannerUploadClick = (event: any) => {
+        if (bannerFileInput.current) {
+            bannerFileInput.current.click();
+        }
+    };
+    const handleBannerSelection = () => {
+        const file = bannerFileInput.current?.files[0];
+
+        imageselection(file, "banner");
+
+
+    };
 
     const onHeaderLogoLinkChanged = (event: any) => {
         const urlOrDataUrl = event.target.value;
@@ -176,13 +230,18 @@ export const ModifyDefaultsTask = () => {
 
         }
     };
+    const onHeaderLogoLinkDelete = (event: any) => {
 
+        setHeaderLogoFileName('');
+        setHeaderLogoImagePath(null);
+        setDefaultState({ ...defaultsState, headerLogoLink: 'DELETE' });
+
+    };
     const handleHeaderLogoUploadClick = (event: any) => {
         if (headerLogoFileInput.current) {
             headerLogoFileInput.current.click();
         }
     };
-
     const handleHeaderLogoSelection = () => {
         const file = headerLogoFileInput.current?.files[0];
 
@@ -191,36 +250,10 @@ export const ModifyDefaultsTask = () => {
 
     };
 
-
-    const handleLogoUploadClick = (event: any) => {
-        if (logoFileInput.current) {
-            logoFileInput.current.click();
-        }
-    };
-
-    const handleLogoSelection = () => {
-        const file = logoFileInput.current?.files[0];
-
-        imageselection(file, "logo");
-
-
-    };
-
-
-
-    const handleBannerUploadClick = (event: any) => {
-        if (bannerFileInput.current) {
-            bannerFileInput.current.click();
-        }
-    };
-
-    const handleBannerSelection = () => {
-        const file = bannerFileInput.current?.files[0];
-
-        imageselection(file, "banner");
-
-
-    };
+    const onHeaderTextChanged = (event: any) => {
+        setHeaderText(event.target.value);
+        setDefaultState({ ...defaultsState, headerText: event.target.value });
+    }
 
     const imageselection = (file: any, field: string): any => {
 
@@ -289,19 +322,6 @@ export const ModifyDefaultsTask = () => {
         }
     }
 
-    const updateAdaptiveCard = () => {
-        var adaptiveCard = new AdaptiveCards.AdaptiveCard();
-        adaptiveCard.parse(card);
-        const renderCard = adaptiveCard.render();
-
-        document.getElementsByClassName('card-area-1')[0].innerHTML = '';
-        document.getElementsByClassName('card-area-1')[0].appendChild(renderCard);
-        setCardAreaBorderClass('card-area-border');
-        adaptiveCard.onExecuteAction = function (action: any) {
-            window.open(action.url, '_blank');
-        };
-    };
-
     const checkValidSizeOfImage = (resizedImageAsBase64: string) => {
         var stringLength = resizedImageAsBase64.length - 'data:image/png;base64,'.length;
         var sizeInBytes = 4 * Math.ceil(stringLength / 3) * 0.5624896334383812;
@@ -311,16 +331,9 @@ export const ModifyDefaultsTask = () => {
         else return false;
     };
 
-    const onHeaderTextChanged = (event: any) => {
-        setHeaderText(event.target.value);
-    }
+    
 
     const onSave = () => {
-
-        process.env.REACT_APP_HEADERIMAGE = headerLogoImagePath;
-        process.env.REACT_APP_HEADERTEXT = headerText;
-        console.log(headerLogoImagePath);
-        console.log(process.env.REACT_APP_HEADERIMAGE);
         try {
             updateDefaultData(defaultsState)
                 .then(() => {
@@ -336,13 +349,6 @@ export const ModifyDefaultsTask = () => {
         }
 
     };
-
-    React.useEffect(() => {
-        setHeaderLogoImagePath(process.env.REACT_APP_HEADERIMAGE);
-        setHeaderText(process.env.REACT_APP_HEADERTEXT
-            ? t(process.env.REACT_APP_HEADERTEXT)
-            : t("Mersal"));
-    }, []);
 
     return (
         <>
@@ -392,6 +398,17 @@ export const ModifyDefaultsTask = () => {
                             >
                                 {t('Upload')}
                             </Button>
+                            <Button 
+                            style={{ gridColumn: '2', marginLeft: '5px' }}
+                                onClick={onHeaderLogoLinkDelete} 
+                                size='large'
+                                appearance='secondary'
+                                aria-label={headerLogoFileInput ? t('DeleteImageSuccessful') : t('DeleteImageInfo')}
+                                icon={<Delete24Regular />}
+                                disabled={defaultsState.headerLogoLink===null || defaultsState.headerLogoLink===''|| defaultsState.headerLogoLink==='DELETE'}
+                                >
+                                {t('Delete')}
+                                </Button>
                             <input
                                 type='file'
                                 accept='.jpg, .jpeg, .png, .gif'
@@ -419,12 +436,12 @@ export const ModifyDefaultsTask = () => {
                     <div className={cardAreaBorderClass}>
                         <div className='card-area-2'>
                             <div className="cc-main-left">
-                                <img
+                                {headerLogoImagePath != null && < img
                                     src={headerLogoImagePath}
                                     alt="logo"
                                     className="cc-logo"
                                     title={headerText}
-                                />
+                                />}
                                 <span className="cc-header-text" title={headerText}>
                                     {headerText}
                                 </span>
@@ -480,6 +497,17 @@ export const ModifyDefaultsTask = () => {
                             >
                                 {t('Upload')}
                             </Button>
+                             <Button
+                            style={{ gridColumn: '2', marginLeft: '5px' }}
+                                onClick={onLogoLinkDelete}
+                            size='large'
+                            appearance='secondary'
+                            disabled={defaultsState.logoLink===null || defaultsState.logoLink===''|| defaultsState.logoLink==='DELETE'}
+                            aria-label={logoFileName ? t('DeleteImageSuccessful') : t('DeleteImageInfo')}
+                            icon={<Delete24Regular />}
+                            >
+                                {t('Delete')}
+                            </Button>
                             <input
                                 type='file'
                                 accept='.jpg, .jpeg, .png, .gif'
@@ -526,6 +554,17 @@ export const ModifyDefaultsTask = () => {
                                 icon={<ArrowUpload24Regular />}
                             >
                                 {t('Upload')}
+                            </Button>
+                            <Button
+                            style={{ gridColumn: '2', marginLeft: '5px' }}
+                                onClick={onBannerLinkDelete}
+                            size='large'
+                            appearance='secondary'
+                            aria-label={bannerFileName ? t('DeleteImageSuccessful') : t('DeleteImageInfo')}
+                            disabled={defaultsState.bannerLink===null || defaultsState.bannerLink===''|| defaultsState.bannerLink==='DELETE'}
+                            icon={<Delete24Regular />}
+                            >
+                                {t('Delete')}
                             </Button>
                             <input
                                 type='file'

@@ -18,6 +18,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services
 
         private string serviceUrl;
         private string userAppId;
+        private string headerText;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AppSettingsService"/> class.
@@ -102,6 +103,45 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services
 
             // Update in-memory cache.
             this.userAppId = userAppId;
+        }
+
+        /// <inheritdoc/>
+        public async Task<string> GetHeaderText()
+        {
+            // check in-memory cache.
+            if (!string.IsNullOrWhiteSpace(this.headerText))
+            {
+                return this.headerText;
+            }
+
+            var appConfig = await this.repository.GetAsync(
+                AppConfigTableName.SettingsPartition,
+                AppConfigTableName.HeaderTextRowKey);
+
+            this.headerText = appConfig?.Value;
+            return this.headerText;
+        }
+
+        /// <inheritdoc/>
+        public async Task SetHeaderText(string headerText)
+        {
+            if(string.IsNullOrWhiteSpace(headerText))
+            {
+                throw new ArgumentNullException(nameof(headerText));
+            }
+            var appConfig = new AppConfigEntity()
+            {
+                PartitionKey = AppConfigTableName.SettingsPartition,
+                RowKey = AppConfigTableName.HeaderTextRowKey,
+                Value = headerText,
+            };
+
+            await this.repository.InsertOrMergeAsync(appConfig);
+
+            // Update in-memory cache.
+            this.headerText = headerText;
+
+
         }
 
         /// <inheritdoc/>

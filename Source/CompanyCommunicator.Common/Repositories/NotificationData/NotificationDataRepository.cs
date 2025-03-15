@@ -273,6 +273,21 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.Notificat
             return prefix + await this.storageProvider.DownloadBase64ImageAsync(blobName);
         }
 
+        /// <inheritdoc/>
+        public async Task DeleteImageAsync( string blobName)
+        {
+            try
+            {
+                await this.storageProvider.DeleteImageBlobAsync(blobName);
+                this.Logger.LogInformation($"Image deleted successfully: {blobName}");
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, ex.Message);
+            }
+
+        }
+
         private string AppendNewLine(string originalString, string newString)
         {
             return string.IsNullOrWhiteSpace(originalString)

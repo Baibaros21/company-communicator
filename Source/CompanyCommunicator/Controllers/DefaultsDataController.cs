@@ -75,17 +75,34 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
             if (!string.IsNullOrEmpty(defaults.HeaderLogoLink) && defaults.HeaderLogoLink.StartsWith(Constants.ImageBase64Format))
             {
                 await this.notificationDataRepository.SaveImageAsync(this.DEFAULT_HEADER_LOGO, defaults.HeaderLogoLink);
+            }else if (!string.IsNullOrEmpty(defaults.HeaderLogoLink) && defaults.HeaderLogoLink.Equals("DELETE")) {
+
+                await this.notificationDataRepository.DeleteImageAsync(this.DEFAULT_HEADER_LOGO);
             }
 
             if (!string.IsNullOrEmpty(defaults.LogoLink) && defaults.LogoLink.StartsWith(Constants.ImageBase64Format))
             {
                 await this.notificationDataRepository.SaveImageAsync(this.DEFAULT_LOGO_BLOB_NAME, defaults.LogoLink);
 
+            } else if (!string.IsNullOrEmpty(defaults.LogoLink) && defaults.LogoLink.Equals("DELETE"))
+            {
+                await this.notificationDataRepository.DeleteImageAsync(this.DEFAULT_LOGO_BLOB_NAME);
             }
-            if (!string.IsNullOrEmpty(defaults.BannerLink) && defaults.LogoLink.StartsWith(Constants.ImageBase64Format))
+
+
+            if (!string.IsNullOrEmpty(defaults.BannerLink) && defaults.BannerLink.StartsWith(Constants.ImageBase64Format))
             {
                 await this.notificationDataRepository.SaveImageAsync(this.DEFAULT_BANNER_BLOB_NAME, defaults.BannerLink);
 
+            }
+            else if (!string.IsNullOrEmpty(defaults.BannerLink) && defaults.BannerLink.Equals("DELETE"))
+            {
+                await this.notificationDataRepository.DeleteImageAsync(this.DEFAULT_BANNER_BLOB_NAME);
+            }
+
+            if (!string.IsNullOrEmpty(defaults.HeaderText))
+            {
+                await this.appSettingsService.SetHeaderText(defaults.HeaderText);
             }
             return this.Ok();
         }
@@ -94,19 +111,26 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
 
         public async Task<ActionResult<DefaultsData>> GetDefaultDataAsync()
         {
+            var logoImage = await this.blobStorageProvider.DownloadBase64ImageAsync(this.DEFAULT_LOGO_BLOB_NAME);
+            var logoLink = logoImage != string.Empty ? "data:image/jpeg;base64," + logoImage : null;
 
-            var logoLink = "data:image/jpeg;base64," + await this.blobStorageProvider.DownloadBase64ImageAsync(this.DEFAULT_LOGO_BLOB_NAME);
+            var bannerImage = await this.blobStorageProvider.DownloadBase64ImageAsync(this.DEFAULT_BANNER_BLOB_NAME);
+            var bannerLink = bannerImage != string.Empty ? "data:image/jpeg;base64," + bannerImage : null;
 
-            var bannerLink = "data:image/jpeg;base64," + await this.blobStorageProvider.DownloadBase64ImageAsync(this.DEFAULT_BANNER_BLOB_NAME);
+            var headerLogoImage = await this.blobStorageProvider.DownloadBase64ImageAsync(this.DEFAULT_HEADER_LOGO);
+            var headerLogoLink = headerLogoImage != string.Empty ? "data:image/jpeg;base64," + headerLogoImage : null;
 
-            var headerLogoLink = "data:image/jpeg;base64," + await this.blobStorageProvider.DownloadBase64ImageAsync(this.DEFAULT_HEADER_LOGO);
+
+            var headerText = await this.appSettingsService.GetHeaderText() ?? this.Configuration.GetValue<string>("REACT_APP_HEADERTEXT");
             var result = new DefaultsData
             {
                 LogoFileName = this.DEFAULT_LOGO_BLOB_NAME,
                 LogoLink = logoLink,
                 BannerFileName = this.DEFAULT_BANNER_BLOB_NAME,
                 BannerLink = bannerLink,
+                HeaderLogoFileName = this.DEFAULT_HEADER_LOGO,
                 HeaderLogoLink = headerLogoLink,
+                HeaderText = headerText,
 
             };
 
@@ -114,6 +138,9 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
 
             return this.Ok(result);
         }
+
+       
+
 
     }
 }

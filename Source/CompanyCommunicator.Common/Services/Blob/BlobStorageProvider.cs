@@ -130,8 +130,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Blob
                     stream.Position = 0;
                     imageBytes = stream.ToArray();
                 }
-
-                return Convert.ToBase64String(imageBytes);
+                if (imageBytes == null) { return string.Empty; } else { return Convert.ToBase64String(imageBytes); }
             }
             catch (Exception ex)
             {

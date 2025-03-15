@@ -38,6 +38,10 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public Task SetServiceUrlAsync(string serviceUrl);
 
+        public  Task<string> GetHeaderText();
+        public Task SetHeaderText(string headerText);
+
+
         /// <summary>
         /// Deletes the user app id from database if it exists, no-op otherwise.
         /// </summary>

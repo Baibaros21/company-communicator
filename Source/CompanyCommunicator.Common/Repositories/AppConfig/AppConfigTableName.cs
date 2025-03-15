@@ -29,5 +29,11 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories
         /// User app id row key.
         /// </summary>
         public static readonly string UserAppIdRowKey = "UserAppId";
+
+        /// <summary>
+        /// User app id row key.
+        /// </summary>
+        public static readonly string HeaderTextRowKey = "AppHeaderText";
+
     }
 }

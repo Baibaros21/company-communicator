@@ -35,6 +35,7 @@ import { getDefaultData } from '../../apis/messageListApi';
 
 interface IMainContainer {
     theme: Theme;
+    themeName: string;
 }
 
 
@@ -46,6 +47,8 @@ export const MainContainer = (props: IMainContainer) => {
     const loader = useAppSelector((state: RootState) => state.messages).isCardTemplatesFetchOn.payload;
     const Templates: any = useAppSelector((state: RootState) => state.messages).cardTemplates.payload;
     const [customHeaderImagePath, setCustomeHeaderImagepath] = React.useState<any>(null);
+    const [customHeaderText, setCustomHeaderText] = React.useState<string>("");
+
 
     React.useEffect(() => {
         GetAllCardTemplatesAction(dispatch);
@@ -59,9 +62,8 @@ export const MainContainer = (props: IMainContainer) => {
             await getDefaultData().then((response) => {
 
                 const defaultImages = response.data;
-                console.log(defaultImages);
-                console.log(defaultImages.headerLogoLink);
                 setCustomeHeaderImagepath(defaultImages.headerLogoLink);
+                setCustomHeaderText(defaultImages.headerText);
 
             });
 
@@ -108,22 +110,18 @@ export const MainContainer = (props: IMainContainer) => {
         getBaseUrl() + `/${ROUTE_PARTS.MODIFY_TEMPLATES}`;
 
 
-    const customHeaderText = process.env.REACT_APP_HEADERTEXT
-        ? t(process.env.REACT_APP_HEADERTEXT)
-        : t("Mersal");
-
     return (
         <>
-            <div className={props.theme === teamsLightTheme ? "cc-header-light" : "cc-header"}>
+            <div className={props.themeName === "default" ? "cc-header-light" : "cc-header"}>
                 <div className="cc-main-left">
-                    {(customHeaderImagePath!==null|| customHeaderImagePath !=="") && <img
+                    {(customHeaderImagePath!==null|| customHeaderImagePath !=="") && < img
                         src={customHeaderImagePath}
                         alt=""
                         className="cc-logo"
                         title={customHeaderText}
                     />}
                     <span className="cc-title" title={customHeaderText}>
-                        {customHeaderText}
+                        { customHeaderText}
                     </span>
                 </div>
                 <div className="cc-main-right">
