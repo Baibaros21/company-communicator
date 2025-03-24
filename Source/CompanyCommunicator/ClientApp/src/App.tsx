@@ -70,8 +70,8 @@ export const App = () => {
                 <Suspense fallback={<div></div>}>
                     <BrowserRouter>
                         <Switch>
-{/*                            <Route exact path={`/${ROUTE_PARTS.CONFIG_TAB}`} component={Configuration} />
-*/}                            <Route exact path={`/${ROUTE_PARTS.MESSAGES}`} render={() => <MainContainer theme={fluentUITheme} themeName={themeName}/>} />
+                            <Route exact path={`/${ROUTE_PARTS.CONFIG_TAB}`} component={Configuration} />
+                            <Route exact path={`/${ROUTE_PARTS.MESSAGES}`} render={() => <MainContainer theme={fluentUITheme} themeName={themeName}/>} />
                             <Route exact path={`/${ROUTE_PARTS.NEW_MESSAGE}`} component={NewMessage} />
                             <Route exact path={`/${ROUTE_PARTS.NEW_MESSAGE}/:${ROUTE_PARAMS.ID}`} component={NewMessage} />
                             <Route exact path={`/${ROUTE_PARTS.VIEW_STATUS}/:${ROUTE_PARAMS.ID}`} component={ViewStatusTask} />
