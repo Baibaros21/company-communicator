@@ -338,3 +338,5 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+/Source/CompanyCommunicator/ClientApp/src/components/SentMessages/sentMessages.js
+/Manifest/company-communicator-users/userv2.zip

@@ -30,5 +30,26 @@ export enum TemplateSelection {
     infoVideo_ar = 'Informational with Video Arabic',
     department_ar = 'Department Message Arabic',
     departmentVideo_ar = 'department message with poster Arabic',
-    uae50 = "uae50 خمسون عام على الاتحاد",
+   /* uae50 = "uae50 خمسون عام على الاتحاد",*/
 }
+interface TemplateSelectionItem {
+    key: TemplateSelection;
+    displayName: string;
+}
+
+export const TemplateItems: TemplateSelectionItem[] = [
+    { key: TemplateSelection.Default, displayName: 'Default Template' },
+    { key: TemplateSelection.infromational, displayName: 'Informational Template' },
+    { key: TemplateSelection.infoVideo, displayName: 'Informational with Video Template' },
+    { key: TemplateSelection.department, displayName: 'Department Message Template' },
+    { key: TemplateSelection.departmentVideo, displayName: 'Department Message with Poster Template' },
+    { key: TemplateSelection.video, displayName: 'Video Template' },
+    { key: TemplateSelection.department_ar, displayName: 'Department Message Arabic Template' },
+    { key: TemplateSelection.infromational_ar, displayName: 'Informational Arabic Template' },
+/*    { key: TemplateSelection.Default_ar, displayName: 'Default Arabic Template' },
+
+    { key: TemplateSelection.infoVideo_ar, displayName: 'Informational with Video Arabic Template' },
+
+    { key: TemplateSelection.departmentVideo_ar, displayName: 'Department Message with Poster Arabic Template' },*/
+    /* { key: TemplateSelection.uae50, displayName: 'UAE 50th Anniversary Template' },*/
+];

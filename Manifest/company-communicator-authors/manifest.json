@@ -6,9 +6,9 @@
   "packageName": "com.microsoft.teams.companycommunicator.authors",
   "developer": {
     "name": "blueridgeit",
-    "websiteUrl": "http://www.blueridgeit.com",
-    "privacyUrl": "http://www.blueridgeit.com",
-    "termsOfUseUrl": "http://www.blueridgeit.com"
+    "websiteUrl": "https://www.blueridgeit.com",
+    "privacyUrl": "https://www.blueridgeit.com",
+    "termsOfUseUrl": "https://www.blueridgeit.com"
   },
   "icons": {
     "color": "color.png",
@@ -47,7 +47,13 @@
     "messageTeamMembers"
   ],
   "validDomains": [
-    "companycommunicator.blueridgeit.com"
+    "companycommunicator.blueridgeit.com",
+    "*.companycommunicator.blueridgeit.com",
+    "companycommunicator.blueridgeit.com",
+    "mersalv6.azurewebsites.net",
+    "*.mersalv6.azurewebsites.net",
+    "*.companycommunicator.blueridgeit.com",
+    "*.cloud.microsoft"
   ],
   "webApplicationInfo": {
     "id": "324c8478-a610-4f39-9aea-c8b6fef4de92",

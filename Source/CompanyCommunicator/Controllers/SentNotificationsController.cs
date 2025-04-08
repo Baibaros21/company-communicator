@@ -379,6 +379,111 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
 
         }
 
+        /// <summary>
+        /// Get a sent notification by Activity Id.
+        /// </summary>
+        /// <param name="activityId">Activity Id of the notification.</param>
+        /// <returns>The sent notification details.</returns>
+        [HttpGet("byactivity/{activityId}")]
+        public async Task<IActionResult> GetSentNotificationByActivityIdAsync(string activityId)
+        {
+            if (string.IsNullOrEmpty(activityId))
+            {
+                return this.BadRequest("Activity ID cannot be null or empty.");
+            }
+
+            try
+            {
+                // Get sent notification data entity by Activity ID
+                var sentNotificationEntities = await this.sentNotificationDataRepository.GetNotificationByColumnFilter("ActivityId", activityId);
+                var sentNotificationList = sentNotificationEntities.ToList();
+
+                if (sentNotificationList.Count == 0)
+                {
+                    return this.NotFound($"No notification found with Activity ID: {activityId}");
+                }
+
+                // Use the first result's partition key (notification id) to get the notification data
+                var notificationId = sentNotificationList[0].PartitionKey;
+                var notificationEntity = await this.notificationDataRepository.GetAsync(
+                    NotificationDataTableNames.SentNotificationsPartition,
+                    notificationId);
+
+                if (notificationEntity == null)
+                {
+                    return this.NotFound($"Notification details not found for ID: {notificationId}");
+                }
+
+                var groupNames = await this.groupsService.
+                    GetByIdsAsync(notificationEntity.Groups).
+                    Select(x => x.DisplayName).
+                    ToListAsync();
+
+                var userId = this.HttpContext.User.FindFirstValue(Common.Constants.ClaimTypeUserId);
+                var userNotificationDownload = await this.exportDataRepository.GetAsync(userId, notificationId);
+
+                var result = new SentNotification
+                {
+                    Id = notificationEntity.Id,
+                    Title = notificationEntity.Title,
+                    Department = notificationEntity.Department,
+                    ImageLink = notificationEntity.ImageLink,
+                    ImageBase64BlobName = notificationEntity.ImageBase64BlobName,
+                    PosterLink = notificationEntity.PosterLink,
+                    PosterBase64BlobName = notificationEntity.PosterBase64BlobName,
+                    Summary = notificationEntity.Summary,
+                    Author = notificationEntity.Author,
+                    ButtonTitle = notificationEntity.ButtonTitle,
+                    ButtonLink = notificationEntity.ButtonLink,
+                    VideoLink = notificationEntity.VideoLink,
+                    CreatedDateTime = notificationEntity.CreatedDate,
+                    SentDate = notificationEntity.SentDate,
+                    Succeeded = notificationEntity.Succeeded,
+                    Failed = notificationEntity.Failed,
+                    Unknown = this.GetUnknownCount(notificationEntity),
+                    Canceled = notificationEntity.Canceled > 0 ? notificationEntity.Canceled : (int?)null,
+                    TeamNames = await this.teamDataRepository.GetTeamNamesByIdsAsync(notificationEntity.Teams),
+                    RosterNames = await this.teamDataRepository.GetTeamNamesByIdsAsync(notificationEntity.Rosters),
+                    GroupNames = groupNames,
+                    AllUsers = notificationEntity.AllUsers,
+                    SendingStartedDate = notificationEntity.SendingStartedDate,
+                    ErrorMessage = notificationEntity.ErrorMessage,
+                    WarningMessage = notificationEntity.WarningMessage,
+                    CanDownload = userNotificationDownload == null,
+                    SendingCompleted = notificationEntity.IsCompleted(),
+                    CreatedBy = notificationEntity.CreatedBy,
+                    Seen = notificationEntity.Seen,
+                    Like = notificationEntity.Like,
+                    Heart = notificationEntity.Heart,
+                    Surpise = notificationEntity.Surprise,
+                    Laugh = notificationEntity.Laugh,
+                };
+
+                // In case we have blob name instead of URL to public image.
+                if (!string.IsNullOrEmpty(notificationEntity.ImageBase64BlobName)
+                    && result.ImageLink.StartsWith(Common.Constants.ImageBase64Format))
+                {
+                    result.ImageLink = await this.notificationDataRepository.GetImageAsync(result.ImageLink, notificationEntity.ImageBase64BlobName);
+                }
+
+                // Download base64 data from blob convert to base64 string.
+                if (!string.IsNullOrEmpty(notificationEntity.PosterBase64BlobName))
+                {
+                    result.PosterLink = await this.notificationDataRepository.GetImageAsync(notificationEntity.PosterLink, notificationEntity.PosterBase64BlobName);
+                }
+
+                var card = await this.sendingNotificationDataRepository.GetAdaptiveCardAsync(notificationEntity.Id);
+                result.Card = card;
+
+                return this.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, $"Error getting notification by Activity ID: {activityId}");
+                return this.StatusCode(500, "An error occurred while retrieving the notification.");
+            }
+        }
+
         private int? GetUnknownCount(NotificationDataEntity notificationEntity)
         {
             var unknown = notificationEntity.Unknown;

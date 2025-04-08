@@ -28,7 +28,7 @@ export const getInitAdaptiveCard = (titleText: string = "title", type: string = 
             return {
                 "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
                 "type": "AdaptiveCard",
-                "version": "1.5",
+                "version": "1.6",
                 "body": [
                     {
                         "type": "TextBlock",
@@ -163,7 +163,12 @@ export const setCardVideoPlayerUrl = (card: any, videoLink?: string) => {
 
     const filteredcomp = getProperty(card.body, "video");
     if (filteredcomp.length > 0) {
-        filteredcomp[0].selectAction.url = videoLink;
+        /*filteredcomp[0].selectAction.url = videoLink;*/
+        try {
+            filteredcomp[0].selectAction.data.videoId = videoLink;
+        } catch (error) {
+            console.log("Error in setting video player task module url");
+        }
     }
 };
 

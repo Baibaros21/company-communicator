@@ -75,7 +75,6 @@ export const App = () => {
                             <Route exact path={`/${ROUTE_PARTS.NEW_MESSAGE}`} component={NewMessage} />
                             <Route exact path={`/${ROUTE_PARTS.NEW_MESSAGE}/:${ROUTE_PARAMS.ID}`} component={NewMessage} />
                             <Route exact path={`/${ROUTE_PARTS.VIEW_STATUS}/:${ROUTE_PARAMS.ID}`} component={ViewStatusTask} />
-                            <Route exact path={`/${ROUTE_PARTS.VIDEO_PLAYER}/:${ROUTE_PARAMS.ID}`} component={VideoPlayer} />
                             <Route exact path={`/${ROUTE_PARTS.VIDEO_PLAYER}`} component={VideoPlayer} />
                             <Route exact path={`/${ROUTE_PARTS.MODIFY_TEMPLATES}`} component={ModifyTemplatesTask} />
                             <Route exact path={`/${ROUTE_PARTS.MODIFYDEFAULTS}`} component={ModifyDefaultsTask} />

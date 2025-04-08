@@ -1,43 +1,29 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-
-import React from "react";
-import * as microsoftTeams from "@microsoft/teams-js";
+import * as React from "react";
+import * as microsoftTeams from '@microsoft/teams-js';
 import { getBaseUrl } from "../configVariables";
 
-export interface IConfigState {
-  url: string;
-}
+const Configuration: React.FC = () => {
+    const [url, setUrl] = React.useState(getBaseUrl() + "/messages?locale={locale}");
 
-class Configuration extends React.Component<{}, IConfigState> {
-  constructor(props: {}) {
-    super(props);
-    this.state = {
-      url: getBaseUrl() + "/messages?locale={locale}",
-    };
-  }
+    React.useEffect(() => {
+        microsoftTeams.initialize();
+        microsoftTeams.settings.registerOnSaveHandler((saveEvent) => {
+            microsoftTeams.settings.setSettings({
+                entityId: "Company_Communicator_App",
+                contentUrl: url,
+                suggestedDisplayName: "ComCast",
+            });
+            saveEvent.notifySuccess();
+        });
 
-  public componentDidMount() {
-    microsoftTeams.initialize();
-    microsoftTeams.settings.registerOnSaveHandler((saveEvent) => {
-      microsoftTeams.settings.setSettings({
-        entityId: "Company_Communicator_App",
-        contentUrl: this.state.url,
-        suggestedDisplayName: "Company Communicator",
-      });
-      saveEvent.notifySuccess();
-    });
+        microsoftTeams.settings.setValidityState(true);
+    }, [url]);
 
-    microsoftTeams.settings.setValidityState(true);
-  }
-
-  public render(): JSX.Element {
     return (
-      <div className="configContainer">
-        <h3>Please click Save to get started.</h3>
-      </div>
+        <div className="configContainer">
+            <h3>Please click Save to get started.</h3>
+        </div>
     );
-  }
-}
+};
 
 export default Configuration;

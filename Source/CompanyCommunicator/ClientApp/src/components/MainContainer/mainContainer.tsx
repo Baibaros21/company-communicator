@@ -24,7 +24,6 @@ import { Status24Regular, PersonFeedback24Regular, QuestionCircle24Regular, Sett
 import * as microsoftTeams from "@microsoft/teams-js";
 import { GetDraftMessagesSilentAction, GetAllCardTemplatesAction } from "../../actions";
 import { RootState, useAppDispatch, useAppSelector } from "../../store";
-import mslogo from "../../assets/Images/mslogo.png";
 import { getBaseUrl } from "../../configVariables";
 import { ROUTE_PARTS, ROUTE_QUERY_PARAMS } from "../../routes";
 import { DraftMessages } from "../DraftMessages/draftMessages";

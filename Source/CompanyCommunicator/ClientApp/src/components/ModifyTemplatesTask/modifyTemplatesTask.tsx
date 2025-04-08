@@ -1,6 +1,6 @@
 ﻿import * as AdaptiveCards from 'adaptivecards';
 import * as React from 'react';
-import { TemplateSelection, useAppSelector, RootState, useAppDispatch } from "../../store";
+import { TemplateSelection, useAppSelector, RootState, useAppDispatch, TemplateItems } from "../../store";
 import { useTranslation } from 'react-i18next';
 import {
     Button,
@@ -183,10 +183,9 @@ export const ModifyTemplatesTask = () => {
     };
 
     const templateSelectionChange = (ev: any, data: RadioGroupOnChangeData) => {
-        let input = data.value as keyof typeof TemplateSelection;
-        setSelectedTemplate(TemplateSelection[input]);
-
-        getCurrentCardTemplate(TemplateSelection[input]);
+        let input = data.value as TemplateSelection;
+        setSelectedTemplate(input);
+        getCurrentCardTemplate(input);
     };
 
     const updateAdaptiveCard = () => {
@@ -255,21 +254,14 @@ export const ModifyTemplatesTask = () => {
                                     {t('SendHeadingText')}
                                 </Label>
                                 <RadioGroup defaultValue={selectedTemplate} aria-labelledby='TemplateSelectionGroupLabelId' onChange={templateSelectionChange}>
-                                    <Radio id='radio1' value="Default" label={TemplateSelection.Default} />
-
-                                    <Radio id='radio2' value="infromational" label={TemplateSelection.infromational} />
-
-                                    <Radio id='radio4' value="department" label={TemplateSelection.department} />
-
-                                    <Radio id='radio5' value="departmentVideo" label={TemplateSelection.departmentVideo} />
-
-                                    <Radio id='radio7' value="Default_ar" label={TemplateSelection.Default_ar} />
-
-                                    <Radio id='radio10' value="department_ar" label={TemplateSelection.department_ar} />
-
-                                    <Radio id='radio11' value="departmentVideo_ar" label={TemplateSelection.departmentVideo_ar} />
-
-                                    <Radio id='radio12' value="uae50" label={TemplateSelection.uae50} />
+                                    {TemplateItems.map((item) => (
+                                        <Radio
+                                            key={item.key}
+                                            value={item.key}
+                                            label={item.displayName}
+                                        />
+                                    ))}
+                                    
 
                                 </RadioGroup>
                             </div>

@@ -54,7 +54,6 @@ export const GetAllCardTemplatesAction = (dispatch: typeof store.dispatch) => {
     getCardTemplates().then((response) => {
 
         const cardTemplatesList: ITemplates = response.data;
-        console.log(cardTemplatesList);
         dispatch(cardTemplates({ type: "FETCH_TEMPLATES", payload: cardTemplatesList }));
 
     }).finally(() => {

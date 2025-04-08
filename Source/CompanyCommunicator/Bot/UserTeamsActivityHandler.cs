@@ -9,6 +9,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using Azure;
     using Dynamitey;
     using Microsoft.Azure.Documents.SystemFunctions;
     using Microsoft.Bot.Builder;
@@ -19,7 +20,9 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
     using Microsoft.Graph;
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.NotificationData;
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.SentNotificationData;
-    using Microsoft.Teams.Apps.CompanyCommunicator.Common.Resources;
+    using  Microsoft.Teams.Apps.CompanyCommunicator.Common;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
 
     /// <summary>
     /// Company Communicator User Bot.
@@ -33,7 +36,6 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
         private readonly TeamsDataCapture teamsDataCapture;
         private readonly ISentNotificationDataRepository sentNotificationDataRepository;
         private readonly INotificationDataRepository notificationDataRepository;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="UserTeamsActivityHandler"/> class.
         /// </summary>
@@ -44,6 +46,75 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             this.sentNotificationDataRepository = sentNotificationDataRepository ?? throw new ArgumentNullException(nameof(sentNotificationDataRepository));
             this.notificationDataRepository = notificationDataRepository ?? throw new ArgumentNullException(nameof(notificationDataRepository));
 
+        }
+
+        /// <summary>
+        /// Handles task module fetch requests.
+        /// </summary>
+        /// <param name="turnContext">The turn context.</param>
+        /// <param name="taskModuleRequest">The task module request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task module response.</returns>
+        protected override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var activityId = turnContext.Activity.ReplyToId;
+                var data = taskModuleRequest.Data as JObject;
+                if (data != null )
+                {
+                    // Ensure URL uses HTTPS
+                    var secureUrl = Common.Constants.BaseUrl + "/videoplayer?activityId=" + activityId;
+
+                    var taskInfo = new TaskModuleTaskInfo
+                    {
+                        Url = secureUrl,
+                        FallbackUrl = secureUrl,
+                        Height = 500,
+                        Width = 500,
+                        Title = "Videoplayer Task Module",
+                    };
+
+                    var response = new TaskModuleResponse
+                    {
+                        Task = new TaskModuleContinueResponse
+                        {
+                            Value = taskInfo,
+                        },
+                    };
+                    Console.WriteLine($"Task module response: {JsonConvert.SerializeObject(data)}");
+
+                    return Task.FromResult(response);
+                }
+                else
+                {
+                    // Log when data is null
+                    Console.WriteLine("Task module request data was null");
+                    return Task.FromResult(new TaskModuleResponse
+                    {
+                        Task = new TaskModuleMessageResponse
+                        {
+                            Value = "There was an error loading the video player. Please try again.",
+                            Type = "message",
+                        },
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error in OnTeamsTaskModuleFetchAsync: {ex.Message}");
+
+                // Return a friendly error message to the user
+                return Task.FromResult(new TaskModuleResponse
+                {
+                    Task = new TaskModuleMessageResponse
+                    {
+                        Value = "An error occurred while loading the video player. Please try again later.",
+                        Type = "message",
+                    },
+                });
+            }
         }
 
         /// <summary>
@@ -86,7 +157,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
         /// <inheritdoc/>
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            // Sends an activity to the sender of the incoming activity.
+
             await turnContext.SendActivityAsync(MessageFactory.Text($"Echo: {turnContext.Activity.Text}"), cancellationToken);
         }
 

@@ -125,6 +125,12 @@ export const getAppId = async (): Promise<any> => {
     let url = baseAxiosUrl + "/sentNotifications/appid";
     return await axios.get(url);
 }
+// Get sent notification by activity ID
+export const getSentNotificationByActivityId = async (activityId: string): Promise<any> => {
+    let url = baseAxiosUrl + "/sentnotifications/byactivity/" + activityId;
+    var res = await axios.get(url);
+    return res;
+};
 
 export const getAuthenticationConsentMetadata = async (
     windowLocationOriginDomain: string,

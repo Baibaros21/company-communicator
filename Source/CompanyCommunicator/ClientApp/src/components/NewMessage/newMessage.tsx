@@ -38,7 +38,7 @@ import * as ACData from 'adaptivecards-templating';
 import { GetDraftMessagesSilentAction, GetGroupsAction, GetTeamsDataAction, SearchGroupsAction, VerifyGroupAccessAction, GetAllCardTemplatesAction } from '../../actions';
 import { createDraftNotification, getDraftNotification, updateDraftNotification, getDefaultData, getAppId } from '../../apis/messageListApi';
 import { getBaseUrl } from '../../configVariables';
-import { RootState, useAppDispatch, useAppSelector, TemplateSelection } from '../../store';
+import { RootState, useAppDispatch, useAppSelector, TemplateSelection, TemplateItems } from '../../store';
 import {
     setCardAuthor, setCardDeptTitle,
     setCardBtn, setCardImageLink, setCardSummary,
@@ -423,9 +423,9 @@ export const NewMessage = () => {
 
 
     const templateSelectionChange = (ev: any, data: RadioGroupOnChangeData) => {
-        let input = data.value as keyof typeof TemplateSelection;
-        setSelectedTemplate(TemplateSelection[input]);
-        getCurrentCardTemplate(TemplateSelection[input]);
+        let input = data.value as TemplateSelection;
+        setSelectedTemplate(input);
+        getCurrentCardTemplate(input);
 /*        setDefaultCard(card);
 */        updateAdaptiveCard();
     };
@@ -770,13 +770,9 @@ export const NewMessage = () => {
         }
 
 
-        var url = "https://teams.microsoft.com/l/task/" + InternalAppId
-            + "?url=" + "https://companycommunicator.blueridgeit.com/videoplayer/" + urlOrDataUrl
-            + "&height=large&width=large&title=ADVideo";
-
         if (isGoodLink) {
-            setMessageState({ ...messageState, videoLink: url });
-            setCardVideoPlayerUrl(card, url);
+            setMessageState({ ...messageState, videoLink: urlOrDataUrl });
+            setCardVideoPlayerUrl(card, urlOrDataUrl);
             updateAdaptiveCard();
         }
 
@@ -990,20 +986,14 @@ export const NewMessage = () => {
                                 {t('SendHeadingText')}
                             </Label>
                             <RadioGroup defaultValue={selectedTemplate} aria-labelledby='TemplateSelectionGroupLabelId' onChange={templateSelectionChange}>
-                                <Radio id='radio1' value="Default" label={TemplateSelection.Default} />
 
-                                <Radio id='radio2' value="infromational" label={TemplateSelection.infromational} />
-
-                                <Radio id='radio4' value="department" label={TemplateSelection.department} />
-
-                                <Radio id='radio5' value="departmentVideo" label={TemplateSelection.departmentVideo} />
-
-                                <Radio id='radio7' value="Default_ar" label={TemplateSelection.Default_ar} />
-
-                                <Radio id='radio10' value="department_ar" label={TemplateSelection.department_ar} />
-
-                                <Radio id='radio11' value="departmentVideo_ar" label={TemplateSelection.departmentVideo_ar} />
-
+                                {TemplateItems.map((item) => (
+                                    <Radio
+                                        key={item.key}
+                                        value={item.key}
+                                        label={item.displayName}
+                                    />
+                                ))}
 
 
                             </RadioGroup>
@@ -1088,7 +1078,7 @@ export const NewMessage = () => {
                                     || selectedTemplate === TemplateSelection.Default_ar
                                     || selectedTemplate === TemplateSelection.infromational
                                     || selectedTemplate === TemplateSelection.infromational_ar
-                                    || selectedTemplate === TemplateSelection.uae50)
+                                    )
                                 && (<> <Field
                                     size='large'
                                     className={field_styles.styles}
