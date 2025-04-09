@@ -61,7 +61,14 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             {
                 var activityId = turnContext.Activity.ReplyToId;
                 var data = taskModuleRequest.Data as JObject;
-                if (data != null )
+                // Access the "type" field inside the "msteams" object
+                var msteamsType = data["type"]?.ToString();
+                Console.WriteLine($"msteams type: {msteamsType}");
+
+                if (data != null &&
+                    data["type"] != null &&
+                    data["type"].ToString() == "task/fetch" &&
+                    data["videoId"] != null)
                 {
                     // Ensure URL uses HTTPS
                     var secureUrl = Common.Constants.BaseUrl + "/videoplayer?activityId=" + activityId;
