@@ -1049,11 +1049,7 @@ export const NewMessage = () => {
                                 />
                             </Field>
 
-                            {
-                                (selectedTemplate === TemplateSelection.department
-                                    || selectedTemplate === TemplateSelection.departmentVideo
-                                    || selectedTemplate === TemplateSelection.department_ar
-                                    || selectedTemplate === TemplateSelection.departmentVideo_ar)
+                            { (TemplateItems.find(item => item.key === selectedTemplate)?.department)
                                 && (<>
 
 
@@ -1074,12 +1070,8 @@ export const NewMessage = () => {
 
                             }
                             {
-                                (selectedTemplate === TemplateSelection.Default
-                                    || selectedTemplate === TemplateSelection.Default_ar
-                                    || selectedTemplate === TemplateSelection.infromational
-                                    || selectedTemplate === TemplateSelection.infromational_ar
-                                    )
-                                && (<> <Field
+                                (TemplateItems.find(item => item.key === selectedTemplate)?.poster)
+                                    && (<> <Field
                                     size='large'
                                     className={field_styles.styles}
                                     label={{
@@ -1129,12 +1121,8 @@ export const NewMessage = () => {
                             }
 
                             {
-                                (selectedTemplate === TemplateSelection.infoVideo
-                                    || selectedTemplate === TemplateSelection.departmentVideo
-                                    || selectedTemplate === TemplateSelection.infoVideo_ar
-                                    || selectedTemplate === TemplateSelection.departmentVideo_ar
-                                    || selectedTemplate === TemplateSelection.video)
-                                && (<> <Field
+                                (TemplateItems.find(item => item.key === selectedTemplate)?.video)
+                                    && (<> <Field
                                     size='large'
                                     className={field_styles.styles}
                                     label={{
@@ -1214,26 +1202,32 @@ export const NewMessage = () => {
                                     </Field>
                                 </>)
                             }
-
-                            <Field size='large' className={field_styles.styles} label={t('Summary')}>
-                                <Textarea
-                                    size='large'
-                                    appearance='filled-darker'
-                                    placeholder={t('Summary')}
-                                    value={messageState.summary || ''}
-                                    onChange={onSummaryChanged}
-                                />
-                            </Field>
-                            <Field size='large' className={field_styles.styles} label={t('Author')}>
-                                <Input
-                                    placeholder={t('Author')}
-                                    size='large'
-                                    onChange={onAuthorChanged}
-                                    autoComplete='off'
-                                    appearance='filled-darker'
-                                    value={messageState.author || ''}
-                                />
-                            </Field>
+                            {
+                                (TemplateItems.find(item => item.key === selectedTemplate)?.summary)
+                                &&
+                                <Field size='large' className={field_styles.styles} label={t('Summary')}>
+                                    <Textarea
+                                        size='large'
+                                        appearance='filled-darker'
+                                        placeholder={t('Summary')}
+                                        value={messageState.summary || ''}
+                                        onChange={onSummaryChanged}
+                                    />
+                                </Field>
+                            }
+                            {
+                                (TemplateItems.find(item => item.key === selectedTemplate)?.author)
+                                && (<Field size='large' className={field_styles.styles} label={t('Author')}>
+                                    <Input
+                                        size='large'
+                                        placeholder={t('Author')}
+                                        onChange={onAuthorChanged}
+                                        autoComplete='off'
+                                        appearance='filled-darker'
+                                        value={messageState.author || ''}
+                                    />
+                                </Field>)
+                            }
                             <Field size='large' className={field_styles.styles} label={t('ButtonTitle')}>
                                 <Input
                                     size='large'

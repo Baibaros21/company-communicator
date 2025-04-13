@@ -34,6 +34,7 @@ import { deleteDraftNotification, duplicateDraftNotification, sendPreview } from
 import { getBaseUrl } from "../../configVariables";
 import { ROUTE_PARTS, ROUTE_QUERY_PARAMS } from "../../routes";
 import { useAppDispatch } from "../../store";
+import './sentMessageDetails.scss';
 
 export const DraftMessageDetail = (draftMessages: any) => {
   const { t } = useTranslation();
@@ -134,7 +135,7 @@ export const DraftMessageDetail = (draftMessages: any) => {
                   <MenuTrigger disableButtonEnhancement>
                     <Button aria-label='Actions menu' icon={<MoreHorizontal24Filled />} />
                   </MenuTrigger>
-                  <MenuPopover>
+                  <MenuPopover className="cc-menu-list">
                     <MenuList>
                       <MenuItem
                         icon={<SendRegular />}

@@ -276,7 +276,7 @@ export const SentMessageDetail = (sentMessages: any) => {
                         <Button aria-label='Actions menu' icon={<MoreHorizontal24Filled />} />
                       </MenuTrigger>
                       <MenuPopover>
-                        <MenuList>
+                      <MenuList className="cc-menu-list">
                           <MenuItem
                             icon={<ChatMultiple24Regular />}
                             key={'viewStatusKey'}

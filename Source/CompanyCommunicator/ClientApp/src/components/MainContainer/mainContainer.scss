@@ -80,6 +80,12 @@
         padding-top: 1.2rem;
     }
 }
+.cc-menu-list {
+    background-color: var(--colorNeutralBackground1);
+    border-radius: 4px; /* Optional: Add rounded corners */
+    padding: 0.5rem; /* Optional: Add padding */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */
+}
 
 .cc-new-message {
     float: right;

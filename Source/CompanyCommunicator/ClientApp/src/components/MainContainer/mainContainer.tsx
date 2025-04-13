@@ -130,7 +130,7 @@ export const MainContainer = (props: IMainContainer) => {
                                 <Button className="cc-icon-button" aria-label='Actions menu' icon={<Settings20Regular className=" cc-icon-button-icon" />} />
                             </MenuTrigger>
                             <MenuPopover>
-                                <MenuList>
+                                <MenuList className="cc-menu-list">
                                     <MenuItem
                                         icon={<Edit20Regular />}
                                         key={'modifyDefaultsKey'}

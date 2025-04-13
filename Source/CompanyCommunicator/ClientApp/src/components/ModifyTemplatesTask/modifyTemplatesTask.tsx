@@ -21,11 +21,7 @@ import { setCardLogo, setCardBanner, saveAdaptiveCard } from '../AdaptiveCard/ad
 import AceEditor from 'react-ace';
 import * as ACData from 'adaptivecards-templating';
 import { GetAllCardTemplatesAction } from "../../actions";
-import 'brace/mode/javascript';
-import 'brace/mode/json';
-import '../../dist/sass/Fabric.scss';
-import 'brace/theme/monokai';
-const validPropNames = ['title', 'logo', 'banner', 'department', 'summary', 'author', 'image', 'video'];
+const validPropNames = ['title', 'logo', 'banner', 'department', 'summary', 'author', 'image', 'video','header','container'];
 enum CurrentPageSelection {
     TemplateChoice = "TemplateChoice",
     JsonEditor = "JsonEditor"
@@ -315,6 +311,22 @@ export const ModifyTemplatesTask = () => {
                 <>
                     <div className='ms-motion-slideLeftIn'>
                         <div className='adaptive-task-grid'>
+                            {jsonErrorMessage && isSaveBtnDisabled && (
+                                <div
+                                    style={{
+                                        color: 'red',
+                                        marginBottom: '10px',
+                                        padding: '8px',
+                                        backgroundColor: '#FFF4F4',
+                                        border: '1px solid #F1707B',
+                                        borderRadius: '4px'
+                                    }}
+                                    role="alert"
+                                    aria-live="assertive"
+                                >
+                                    {jsonErrorMessage}
+                                </div>
+                            )}
                             <div className='form-area'>
                                 <AceEditor
                                     mode="json"

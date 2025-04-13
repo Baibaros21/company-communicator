@@ -102,9 +102,64 @@ export const saveAdaptiveCard = async (card: any, template: TemplateSelection) =
 
 
 var getProperty = (body: any, value: string): any => {
-    return body.filter((prop: any) =>
-        prop.name === value
-    );
+    // Perform quick check for non-array bodies
+    if (!body || !Array.isArray(body)) return [];
+
+    // First try simple filter for better performance
+    const simpleResult = body.filter((prop: any) => prop.name === value);
+
+    // If we found results with the simple filter, return them
+    if (simpleResult && simpleResult.length > 0) {
+        return simpleResult;
+    }
+
+    // Otherwise, do a recursive search
+    const results: any[] = [];
+
+    const searchRecursively = (item: any): boolean => {
+        // Skip if not an object or array, or if null/undefined
+        if (!item || typeof item !== 'object') return false;
+
+        // Check if this item has the name property we're looking for
+        if (item.name === value) {
+            results.push(item);
+            return true; // Found what we're looking for
+        }
+
+        // If this is an array, search each element
+        if (Array.isArray(item)) {
+            for (const element of item) {
+                // Exit early if found in this branch
+                if (searchRecursively(element)) {
+                    return true;
+                }
+            }
+        } else {
+            // Search object properties
+            for (const prop of Object.values(item)) {
+                if (prop && typeof prop === 'object') {
+                    // Exit early if found in this branch
+                    if (searchRecursively(prop)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false; // Not found in this branch
+    };
+
+    // Try to find the property in each top-level item
+    for (const item of body) {
+        // If found in this branch, no need to check the rest
+        if (searchRecursively(item)) {
+            break;
+        }
+    }
+
+    return results;
+
+
 }
 
 export const getCardTitle = (card: any) => {
@@ -159,6 +214,7 @@ export const setCardImageLink = (card: any, imageLink?: string) => {
         filteredcomp[0].url = imageLink
     }
 };
+
 export const setCardVideoPlayerUrl = (card: any, videoLink?: string) => {
 
     const filteredcomp = getProperty(card.body, "video");
@@ -172,21 +228,21 @@ export const setCardVideoPlayerUrl = (card: any, videoLink?: string) => {
     }
 };
 
-export const setCardVideoUrl = (card: any, videoLink?: string) => {
+/*export const setCardVideoUrl = (card: any, videoLink?: string) => {
 
     const filteredcomp = getProperty(card.body, "video");
     if (filteredcomp.length > 0) {
         filteredcomp[0].sources[0].url = videoLink;
     }
-};
+};*/
 
-export const setCardVideoPoster = (card: any, imageLink?: string) => {
+/*export const setCardVideoPoster = (card: any, imageLink?: string) => {
 
     const filteredcomp = getProperty(card.body, "video");
     if (filteredcomp.length > 0) {
         filteredcomp[0].poster = imageLink;
     }
-};
+};*/
 
 export const setCardVideoPlayerPoster = (card: any, imageLink?: string) => {
 
