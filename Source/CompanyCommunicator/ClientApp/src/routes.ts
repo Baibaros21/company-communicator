@@ -13,7 +13,8 @@ export enum ROUTE_PARTS {
     SIGN_IN_SIMPLE_END = "signin-simple-end",
     VIDEO_PLAYER = "videoplayer",
     MODIFYDEFAULTS = "modifydefaults",
-    MODIFY_TEMPLATES = "modifytemplates"
+    MODIFY_TEMPLATES = "modifytemplates",
+    VIDEO_UPLOAD= "videoupload"
 }
 
 export enum ROUTE_PARAMS {

@@ -225,6 +225,17 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
                 await this.blobStorageProvider.DeleteImageBlobAsync(notificationEntity.ImageBase64BlobName);
             }
 
+            if (!string.IsNullOrWhiteSpace(notificationEntity.VideoLink))
+            {
+                var uri  = new Uri(notificationEntity.VideoLink);
+                var pathSegments = uri.AbsolutePath.Split('/');
+                var blobName = pathSegments.LastOrDefault();
+                if (!string.IsNullOrWhiteSpace(blobName))
+                {
+                    await this.blobStorageProvider.DeleteVideoBlobAsync(blobName);
+                }
+            }
+
             await this.notificationDataRepository.DeleteAsync(notificationEntity);
             return this.Ok();
         }

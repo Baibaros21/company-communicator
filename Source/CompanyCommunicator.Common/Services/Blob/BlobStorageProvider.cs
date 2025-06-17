@@ -3,6 +3,7 @@
 // Licensed under the MIT License.
 // </copyright>
 
+
 namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Blob
 {
     using System;
@@ -10,10 +11,13 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Blob
     using System.IO;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
+
     using global::Azure;
     using global::Azure.Storage.Blobs;
     using global::Azure.Storage.Blobs.Models;
     using global::Azure.Storage.Blobs.Specialized;
+    using global::Azure.Storage.Sas;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Logging;
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Clients;
 
@@ -48,6 +52,12 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Blob
         public const string ImagesBlobContainerName = "images";
 
         /// <summary>
+        /// blob container name for videos.
+        /// </summary>
+
+        public const string VideosBlobContainerName = "images";
+
+        /// <summary>
         /// blob container name for images in base64 format.
         /// </summary>
         public const string TemplatesBlobContainerName = "templates";
@@ -68,6 +78,57 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Blob
         {
             this.storageClientFactory = storageClientFactory ?? throw new ArgumentNullException(nameof(storageClientFactory));
             this.logger = logger ?? throw new ArgumentException(nameof(logger));
+        }
+
+        /// <inheritdoc/>
+        public async Task<string> GetUploadBlobSASUriAsync(string blobName, IFormFile file)
+        {
+            try
+            {
+                var blobContainerClient = await this.GetBlobContainer(VideosBlobContainerName);
+                blobName = $"{Guid.NewGuid().ToString()}-{blobName}";
+                var blob = blobContainerClient.GetBlobClient(blobName);
+
+                // Upload the file
+                using (var stream = file.OpenReadStream())
+                {
+                    var blobHttpHeader = new BlobHttpHeaders() { ContentType = file.ContentType };
+                    await blob.UploadAsync(stream, blobHttpHeader);
+                }
+
+                // Generate SAS URL with read permission
+                var sasUrl = this.GenerateSasUrl(blob, blobName, VideosBlobContainerName);
+
+                return sasUrl;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, $"Error uploading video to Azure Blob Storage. Blob name: {blobName}, Error: {ex.Message}");
+                throw;
+            }
+        }
+
+        private string GenerateSasUrl(BlobClient blobClient, string blobName, string blobContainerName)
+        {
+
+
+            // Create SAS token that's valid for 7 days
+            BlobSasBuilder sasBuilder = new BlobSasBuilder()
+            {
+                BlobContainerName = blobContainerName,
+                BlobName = blobName,
+                Resource = "b", // b for blob
+                ExpiresOn = DateTimeOffset.UtcNow.AddYears(1),
+            };
+
+            // Allow read permissions
+            sasBuilder.SetPermissions(BlobSasPermissions.Read);
+
+            // Generate the SAS token
+            var sasUri = blobClient.GenerateSasUri(sasBuilder).ToString();
+
+            // Create the SAS URL
+            return $"{sasUri}";
         }
 
         /// <inheritdoc/>
@@ -278,6 +339,12 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Blob
         public async Task DeleteImageBlobAsync(string blobName)
         {
             await this.DeleteBlobAsync(blobName, ImagesBlobContainerName);
+        }
+
+        /// <inheritdoc/>
+        public async Task DeleteVideoBlobAsync(string blobName)
+        {
+            await this.DeleteBlobAsync(blobName, VideosBlobContainerName);
         }
 
         /// <inheritdoc/>

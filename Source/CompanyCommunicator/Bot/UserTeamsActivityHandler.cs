@@ -67,8 +67,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
 
                 if (data != null &&
                     data["type"] != null &&
-                    data["type"].ToString() == "task/fetch" &&
-                    data["videoId"] != null)
+                    data["type"].ToString() == "task/fetch")
                 {
                     // Ensure URL uses HTTPS
                     var secureUrl = Common.Constants.BaseUrl + "/videoplayer?activityId=" + activityId;
@@ -77,8 +76,8 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
                     {
                         Url = secureUrl,
                         FallbackUrl = secureUrl,
-                        Height = 500,
-                        Width = 500,
+                        Height = 700,
+                        Width =800,
                         Title = "Videoplayer Task Module",
                     };
 

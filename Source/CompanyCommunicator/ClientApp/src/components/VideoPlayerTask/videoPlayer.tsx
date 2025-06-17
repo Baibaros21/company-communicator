@@ -15,6 +15,7 @@ export const VideoPlayer = () => {
   const posterQuery = queryParams.get("poster") || "";
   const activityIdQuery = queryParams.get("activityId") || "";
 
+  const [useIfrmae, setUseIframe] = React.useState(false);
   const [loader, setLoader] = React.useState(true);
   const [error, setError] = React.useState("");
   const [videoUrl, setVideoUrl] = React.useState(urlQuery || "");
@@ -43,6 +44,22 @@ export const VideoPlayer = () => {
   }, [activityId, videoUrl]); // Remove videoUrl from dependencies to avoid infinite loops
 
 
+    const getYouTubeEmbedUrl = (url: string): string => {
+        if (!url) return url;
+
+        // Regular expression to match YouTube URL patterns
+        const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\S*)?$/;
+        const match = url.match(youtubeRegex);
+
+        // If it's a valid YouTube URL, extract the video ID and return the embed URL
+        if (match && match[4]) {
+            const videoId = match[4];
+            return `https://www.youtube.com/embed/${videoId}`;
+        }
+
+        // Return the original URL if it's not a valid YouTube URL
+        return url;
+    };
     const GetSentNotification = async (activityId: string) => {
         await getSentNotificationByActivityId(activityId)
             .then((response) => {
@@ -50,7 +67,14 @@ export const VideoPlayer = () => {
                     const notification = response.data;
                     // Set video URL if available
                     if (notification.videoLink) {
-                        setVideoUrl(notification.videoLink);
+                        // Process the URL to handle YouTube links
+                        const processedUrl = getYouTubeEmbedUrl(notification.videoLink);
+                        setVideoUrl(processedUrl);
+
+                        const isYouTubeEmbed = processedUrl.includes("youtube.com/embed/");
+
+                        // Set iframe mode for YouTube embeds and non-MP4 videos
+                        setUseIframe(isYouTubeEmbed);
                     }
 
                     // Set poster URL if available
@@ -68,10 +92,14 @@ export const VideoPlayer = () => {
             });
     }
   const handleVideoError = () => {
-    setLoader(false);
-    setError("Failed to load video. Please check the URL and try again.");
-  };
-
+      setLoader(false);
+      setUseIframe(true);
+    };
+  
+    const handleIframeError = () => {
+        setLoader(false);
+        setError("Failed to load video. Please check the URL and try again.");
+    };
   return (
     <>
       <div className="taskModule">
@@ -80,22 +108,31 @@ export const VideoPlayer = () => {
             <Spinner />
           </div>
         )}
-        {error && <div className="error-message">{error}</div>}
-              {!loader && !error && videoUrl &&(
-          <div className="video-container">
-            <video
-              controls
-              width="100%"
-              height="auto"
-              poster={posterUrl}
-              onLoadedData={() => setLoader(false)}
-              onError={handleVideoError}
-            >
-              <source src={videoUrl} type="video/mp4" />
-              {t("videoNotSupported")}
-            </video>
-          </div>
-              )}
+
+              {!loader && !error && videoUrl && (useIfrmae ?
+                   (<div className="video-container">
+                      <iframe
+                          src={videoUrl}
+                          frameBorder="0"
+                          allowFullScreen
+                          title="Video Player"
+                          onError={handleIframeError}
+                          allow="autoplay; encrypted-media"
+                          
+                      />
+                  </div> )
+              : ( <div className="video-container">
+                  <video
+                          controls
+                      poster={posterUrl}
+                      onLoadedData={() => setLoader(false)}
+                      onError={handleVideoError}
+                  >
+                      <source src={videoUrl} type="video/mp4" />
+                      {t("videoNotSupported")}
+                  </video>
+              </div>
+              ))}
          {!loader && !error && !videoUrl && (
           <div className="error-message">No video URL available</div>
         )}

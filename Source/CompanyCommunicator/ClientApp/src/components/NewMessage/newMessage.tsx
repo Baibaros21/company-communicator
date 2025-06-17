@@ -45,6 +45,7 @@ import {
     setCardTitle, setCardVideoPlayerUrl, setCardVideoPlayerPoster,
     setCardLogo, setCardBanner
 } from '../AdaptiveCard/adaptiveCard';
+import { ROUTE_PARTS } from '../../routes';
 
 const validImageTypes = ['image/gif', 'image/jpeg', 'image/png', 'image/jpg'];
 
@@ -194,6 +195,8 @@ const MAX_SELECTED_TEAMS_NUM: number = 20;
 export const NewMessage = () => {
     let fileInput = React.createRef<any>();
     let posterFileInput = React.createRef<any>();
+    let videoFileInput = React.createRef<any>();
+
     const { t } = useTranslation();
     const { id } = useParams() as any;
     const dispatch = useAppDispatch();
@@ -234,6 +237,7 @@ export const NewMessage = () => {
         rosters: [],
         groups: [],
         allUsers: false,
+        posterLink: getBaseUrl() + '/image/imagePlaceholder.png',
     });
 
     // Handle selectedOptions both when an option is selected or deselected in the Combobox,
@@ -555,6 +559,227 @@ export const NewMessage = () => {
         }
     }
 
+
+    const onTitleChanged = (event: any) => {
+        if (event.target.value === '') {
+            setTitleErrorMessage('Title is required.');
+        } else {
+            setTitleErrorMessage('');
+        }
+        setCardTitle(card, event.target.value);
+        setMessageState({ ...messageState, title: event.target.value });
+        updateAdaptiveCard();
+    };
+
+    const onDeptChanged = (event: any) => {
+        setCardDeptTitle(card, event.target.value);
+        setMessageState({ ...messageState, department: event.target.value });
+        updateAdaptiveCard();
+    };
+
+    const onImageLinkChanged = (event: any) => {
+        const urlOrDataUrl = event.target.value;
+        let isGoodLink = true;
+        setImageFileName(urlOrDataUrl);
+
+        if (
+            !(
+                urlOrDataUrl === '' ||
+                urlOrDataUrl.startsWith('https://') ||
+                urlOrDataUrl.startsWith('data:image/png;base64,') ||
+                urlOrDataUrl.startsWith('data:image/jpeg;base64,') ||
+                urlOrDataUrl.startsWith('data:image/gif;base64,')
+            )
+        ) {
+            isGoodLink = false;
+            setImageUploadErrorMessage(t('ErrorURLMessage'));
+        } else {
+            isGoodLink = true;
+            setImageUploadErrorMessage(t(''));
+        }
+
+        if (isGoodLink) {
+            setMessageState({ ...messageState, imageLink: urlOrDataUrl });
+            setCardImageLink(card, event.target.value);
+            updateAdaptiveCard();
+        }
+    };
+
+    const onPosterLinkChanged = (event: any) => {
+        const urlOrDataUrl = event.target.value;
+        let isGoodLink = true;
+        setPosterFileName(urlOrDataUrl);
+
+        if (
+            !(
+                urlOrDataUrl === '' ||
+                urlOrDataUrl.startsWith('https://') ||
+                urlOrDataUrl.startsWith('data:image/png;base64,') ||
+                urlOrDataUrl.startsWith('data:image/jpeg;base64,') ||
+                urlOrDataUrl.startsWith('data:image/gif;base64,')
+            )
+        ) {
+            isGoodLink = false;
+            setImageUploadErrorMessage(t('ErrorURLMessage'));
+        } else {
+            isGoodLink = true;
+            setImageUploadErrorMessage(t(''));
+        }
+
+        if (isGoodLink) {
+            setMessageState({ ...messageState, posterLink: urlOrDataUrl });
+            setCardVideoPlayerPoster(card, event.target.value);
+            updateAdaptiveCard();
+        } else {
+            setCardVideoPlayerPoster(card, getBaseUrl() + "/image/imagePlaceholder.png");
+        }
+    };
+
+    const handleVideoUploadClick = () => {
+        if (videoFileInput.current) {
+            videoFileInput.current.click();
+        }
+    };
+
+    // Add this function to handle video file selection
+    const handleVideoFileSelection = () => {
+        const file = videoFileInput.current?.files[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith("video/")) {
+            setImageUploadErrorMessage(t("OnlyVideoFilesAllowed"));
+            return;
+        }
+
+        // Start upload process
+        uploadVideo(file);
+    };
+
+
+    // Add this function for video upload
+    const uploadVideo = async (file: File) => {
+        setShowMsgDraftingSpinner(true);
+
+        try {
+            // Create FormData
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("filename", file.name);
+
+            const baseAxiosUrl = getBaseUrl() + "/api";
+            const url = baseAxiosUrl + "/video/upload";
+
+            // Get auth token from Teams
+            const token = await new Promise<string>((resolve, reject) => {
+                const authTokenRequest = {
+                    successCallback: (token: string) => {
+                        resolve(token);
+                    },
+                    failureCallback: (error: string) => {
+                        console.error("Error getting auth token:", error);
+                        reject(new Error("Failed to get authentication token"));
+                    },
+                    resources: []
+                };
+
+                microsoftTeams.authentication.getAuthToken(authTokenRequest);
+            });
+
+            // Create headers
+            const headers: HeadersInit = {};
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            // Make the fetch request
+            const response = await fetch(url, {
+                method: 'POST',
+                body: formData,
+                headers: headers,
+                credentials: 'include',
+            });
+
+            // Check if response is successful
+            if (!response.ok) {
+                throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+            }
+
+            // Parse the response
+            const data = await response.json();
+
+            // Update state with the video URL
+            setVideoFileName(file.name);
+            onVideoLinkChanged({
+                target: { value: data.url }
+            });
+
+        } catch (error) {
+            const err = error as any;
+            console.error("Error uploading video:", err);
+            setImageUploadErrorMessage(t("FailedToUploadVideo"));
+        } finally {
+            setShowMsgDraftingSpinner(false);
+        }
+    }
+
+    const onVideoLinkChanged = (event: any ) => {
+        const urlOrDataUrl = event.target.value;
+        let isGoodLink = true;
+        setVideoFileName(urlOrDataUrl);
+
+        if (
+            !(
+                urlOrDataUrl === '' ||
+                urlOrDataUrl.startsWith('https://')
+            )
+        ) {
+            isGoodLink = false;
+            setImageUploadErrorMessage(t('ErrorURLMessage'));
+        } else {
+            isGoodLink = true;
+            setImageUploadErrorMessage(t(''));
+        }
+
+
+        if (isGoodLink) {
+            setMessageState({ ...messageState, videoLink: urlOrDataUrl });
+            setCardVideoPlayerUrl(card, urlOrDataUrl);
+            updateAdaptiveCard();
+        }
+
+    };
+
+    const onSummaryChanged = (event: any) => {
+        setCardSummary(card, event.target.value);
+        setMessageState({ ...messageState, summary: event.target.value });
+        updateAdaptiveCard();
+    };
+
+    const onAuthorChanged = (event: any) => {
+        setCardAuthor(card, event.target.value);
+        setMessageState({ ...messageState, author: event.target.value });
+        updateAdaptiveCard();
+    };
+
+    const onBtnTitleChanged = (event: any) => {
+        setCardBtn(card, event.target.value, messageState.buttonLink);
+        setMessageState({ ...messageState, buttonTitle: event.target.value });
+        updateAdaptiveCard();
+    };
+
+    const onBtnLinkChanged = (event: any) => {
+        if (validator.isURL(event.target.value, { require_protocol: true, protocols: ['https'] }) || event.target.value === '') {
+            setBtnLinkErrorMessage('');
+        } else {
+            setBtnLinkErrorMessage(`${event.target.value} is invalid. Please enter a valid https URL`);
+        }
+        setCardBtn(card, messageState.buttonTitle, event.target.value);
+        setMessageState({ ...messageState, buttonLink: event.target.value });
+        updateAdaptiveCard();
+    };
+
+
     const isSaveBtnDisabled = () => {
         const msg_page_conditions = messageState.title !== '' && imageUploadErrorMessage === '' && btnLinkErrorMessage === '';
         const aud_page_conditions =
@@ -675,136 +900,6 @@ export const NewMessage = () => {
 
 
         }
-    };
-
-    const onTitleChanged = (event: any) => {
-        if (event.target.value === '') {
-            setTitleErrorMessage('Title is required.');
-        } else {
-            setTitleErrorMessage('');
-        }
-        setCardTitle(card, event.target.value);
-        setMessageState({ ...messageState, title: event.target.value });
-        updateAdaptiveCard();
-    };
-
-    const onDeptChanged = (event: any) => {
-        setCardDeptTitle(card, event.target.value);
-        setMessageState({ ...messageState, department: event.target.value });
-        updateAdaptiveCard();
-    };
-
-    const onImageLinkChanged = (event: any) => {
-        const urlOrDataUrl = event.target.value;
-        let isGoodLink = true;
-        setImageFileName(urlOrDataUrl);
-
-        if (
-            !(
-                urlOrDataUrl === '' ||
-                urlOrDataUrl.startsWith('https://') ||
-                urlOrDataUrl.startsWith('data:image/png;base64,') ||
-                urlOrDataUrl.startsWith('data:image/jpeg;base64,') ||
-                urlOrDataUrl.startsWith('data:image/gif;base64,')
-            )
-        ) {
-            isGoodLink = false;
-            setImageUploadErrorMessage(t('ErrorURLMessage'));
-        } else {
-            isGoodLink = true;
-            setImageUploadErrorMessage(t(''));
-        }
-
-        if (isGoodLink) {
-            setMessageState({ ...messageState, imageLink: urlOrDataUrl });
-            setCardImageLink(card, event.target.value);
-            updateAdaptiveCard();
-        }
-    };
-
-
-    const onPosterLinkChanged = (event: any) => {
-        const urlOrDataUrl = event.target.value;
-        let isGoodLink = true;
-        setPosterFileName(urlOrDataUrl);
-
-        if (
-            !(
-                urlOrDataUrl === '' ||
-                urlOrDataUrl.startsWith('https://') ||
-                urlOrDataUrl.startsWith('data:image/png;base64,') ||
-                urlOrDataUrl.startsWith('data:image/jpeg;base64,') ||
-                urlOrDataUrl.startsWith('data:image/gif;base64,')
-            )
-        ) {
-            isGoodLink = false;
-            setImageUploadErrorMessage(t('ErrorURLMessage'));
-        } else {
-            isGoodLink = true;
-            setImageUploadErrorMessage(t(''));
-        }
-
-        if (isGoodLink) {
-            setMessageState({ ...messageState, posterLink: urlOrDataUrl });
-            setCardVideoPlayerPoster(card, event.target.value);
-            updateAdaptiveCard();
-        }
-    };
-
-    const onVideoLinkChanged = (event: any) => {
-        const urlOrDataUrl = event.target.value;
-        let isGoodLink = true;
-        setVideoFileName(urlOrDataUrl);
-
-        if (
-            !(
-                urlOrDataUrl === '' ||
-                urlOrDataUrl.startsWith('https://')
-            )
-        ) {
-            isGoodLink = false;
-            setImageUploadErrorMessage(t('ErrorURLMessage'));
-        } else {
-            isGoodLink = true;
-            setImageUploadErrorMessage(t(''));
-        }
-
-
-        if (isGoodLink) {
-            setMessageState({ ...messageState, videoLink: urlOrDataUrl });
-            setCardVideoPlayerUrl(card, urlOrDataUrl);
-            updateAdaptiveCard();
-        }
-
-    };
-
-    const onSummaryChanged = (event: any) => {
-        setCardSummary(card, event.target.value);
-        setMessageState({ ...messageState, summary: event.target.value });
-        updateAdaptiveCard();
-    };
-
-    const onAuthorChanged = (event: any) => {
-        setCardAuthor(card, event.target.value);
-        setMessageState({ ...messageState, author: event.target.value });
-        updateAdaptiveCard();
-    };
-
-    const onBtnTitleChanged = (event: any) => {
-        setCardBtn(card, event.target.value, messageState.buttonLink);
-        setMessageState({ ...messageState, buttonTitle: event.target.value });
-        updateAdaptiveCard();
-    };
-
-    const onBtnLinkChanged = (event: any) => {
-        if (validator.isURL(event.target.value, { require_protocol: true, protocols: ['https'] }) || event.target.value === '') {
-            setBtnLinkErrorMessage('');
-        } else {
-            setBtnLinkErrorMessage(`${event.target.value} is invalid. Please enter a valid https URL`);
-        }
-        setCardBtn(card, messageState.buttonTitle, event.target.value);
-        setMessageState({ ...messageState, buttonLink: event.target.value });
-        updateAdaptiveCard();
     };
 
     // generate ids for handling labelling
@@ -1198,6 +1293,23 @@ export const NewMessage = () => {
                                                 onChange={onVideoLinkChanged}
                                             />
                                         </div>
+                                        <Button
+                                            style={{ gridColumn: '2', marginLeft: '5px' }}
+                                            onClick={handleVideoUploadClick}
+                                            size='large'
+                                            appearance='secondary'
+                                            icon={<ArrowUpload24Regular />}
+                                        >
+                                            {t('UploadVideo')}
+                                        </Button>
+                                        <input
+                                            type='file'
+                                            accept='video/*'
+                                            style={{ display: 'none' }}
+                                            multiple={false}
+                                            onChange={handleVideoFileSelection}
+                                            ref={videoFileInput}
+                                        />
 
                                     </Field>
                                 </>)
@@ -1325,39 +1437,7 @@ export const NewMessage = () => {
                                             <></>
                                         )}
 
-                                        <div className={cmb_styles.root}>
-                                            <div className={cmb_styles.combobox}>
-
-                                                <div className={cmb_styles.comboboxInputContainer}>
-
-                                                    <input
-                                                        type="text"
-                                                        className={cmb_styles.comboboxInput}
-                                                        ref={teamsComboboxInputRef}
-                                                        placeholder={teams.length !== 0 ? 'Pick one or more teams' : t('NoMatchMessage')}
-                                                        onClick={() => handleInputClick(teamsComboboxOptionRef)}
-                                                        aria-labelledby={teamsLabelledBy}
-                                                    />
-                                                    <div className={cmb_styles.comboboxIcon} onClick={() => handleInputClick(teamsComboboxOptionRef)}>
-                                                        <ChevronDownRegular />
-                                                    </div>
-
-                                                </div>
-                                                <ul className={`${cmb_styles.comboboxOptions} combobox-options`} ref={teamsComboboxOptionRef}>
-                                                    {teams.map((opt) => (
-                                                        <li
-                                                            className={cmb_styles.comboboxOption}
-                                                            key={opt.id}
-                                                            onClick={() => onTeamsSelectOpt(opt)}
-                                                        >
-                                                            <Persona name={opt.name} secondaryText={'Team'} avatar={{ shape: 'square', color: 'colorful' }} />
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        </div>
-
-                                        {/*    <Combobox
+                                            <Combobox
                                             multiselect={true}
                                             selectedOptions={teamsSelectedOptions.map((op) => op.id)}
                                             appearance='filled-darker'
@@ -1372,7 +1452,7 @@ export const NewMessage = () => {
                                                     <Persona name={opt.name} secondaryText={'Team'} avatar={{ shape: 'square', color: 'colorful' }} />
                                                 </Option>
                                             ))}
-                                        </Combobox>*/}
+                                        </Combobox>
                                     </div>
                                 )}
                                 <Radio id='radio2' value={AudienceSelection.Rosters} label={t('SendToRosters')} />
@@ -1406,40 +1486,7 @@ export const NewMessage = () => {
                                             <></>
                                         )}
 
-                                        <div className={cmb_styles.root}>
-                                            <div className={cmb_styles.combobox}>
-
-                                                <div className={cmb_styles.comboboxInputContainer}>
-
-                                                    <input
-                                                        type="text"
-                                                        className={cmb_styles.comboboxInput}
-                                                        ref={teamsComboboxInputRef}
-                                                        placeholder={teams.length !== 0 ? 'Pick one or more teams' : t('NoMatchMessage')}
-                                                        onClick={() => handleInputClick(rosterComboboxOptionRef)}
-                                                        aria-labelledby={rostersLabelledBy}
-                                                    />
-                                                    <div className={cmb_styles.comboboxIcon} onClick={() => handleInputClick(rosterComboboxOptionRef)}>
-                                                        <ChevronDownRegular />
-
-                                                    </div>
-
-                                                </div>
-                                                <ul className={`${cmb_styles.comboboxOptions} combobox-options`} ref={rosterComboboxOptionRef}>
-                                                    {teams.map((opt) => (
-                                                        <li
-                                                            className={cmb_styles.comboboxOption}
-                                                            key={opt.id}
-                                                            onClick={() => onRosterSelectOpt(opt)}
-                                                        >
-                                                            <Persona name={opt.name} secondaryText={'Team'} avatar={{ shape: 'square', color: 'colorful' }} />
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        </div>
-
-                                        {/* <Combobox
+                                         <Combobox
                                             multiselect={true}
                                             selectedOptions={rostersSelectedOptions.map((op) => op.id)}
                                             appearance='filled-darker'
@@ -1454,7 +1501,7 @@ export const NewMessage = () => {
                                                     <Persona name={opt.name} secondaryText={'Team'} avatar={{ shape: 'square', color: 'colorful' }} />
                                                 </Option>
                                             ))}
-                                        </Combobox> */}
+                                        </Combobox> 
                                     </div>
                                 )}
                                 <Radio id='radio3' value={AudienceSelection.AllUsers} label={t('SendToAllUsers')} />
@@ -1502,39 +1549,8 @@ export const NewMessage = () => {
                                                 ) : (
                                                     <></>
                                                 )}
-                                                                                        <div className={cmb_styles.root}>
-                                            <div className={cmb_styles.combobox}>
 
-                                                <div className={cmb_styles.comboboxInputContainer}>
-
-                                                    <input
-                                                        type="text"
-                                                        className={cmb_styles.comboboxInput}
-                                                        ref={teamsComboboxInputRef}
-                                                        placeholder={teams.length !== 0 ? 'Pick one or more teams' : t('NoMatchMessage')}
-                                                                onClick={() => handleInputClick(searchComboboxOptionRef)}
-                                                                aria-labelledby={searchLabelledBy}
-                                                    />
-                                                            <div className={cmb_styles.comboboxIcon} onClick={() => handleInputClick(searchComboboxOptionRef)}>
-                                                                <ChevronDownRegular />
-                                                    </div>
-
-                                                </div>
-                                                <ul className={`${cmb_styles.comboboxOptions} combobox-options`} ref={searchComboboxOptionRef}>
-                                                    {queryGroups.map((opt) => (
-                                                        <li
-                                                            className={cmb_styles.comboboxOption}
-                                                            key={opt.id}
-                                                            onClick={() => onSearchSelectOpt(opt)}
-                                                        >
-                                                            <Persona name={opt.name} secondaryText={'Team'} avatar={{ shape: 'square', color: 'colorful' }} />
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        </div>
-
-                                                {/* <Combobox
+                                              <Combobox
                                                     appearance='filled-darker'
                                                     size='large'
                                                     onOptionSelect={onSearchSelect}
@@ -1547,7 +1563,7 @@ export const NewMessage = () => {
                                                             <Persona name={opt.name} secondaryText={'Group'} avatar={{ color: 'colorful' }} />
                                                         </Option>
                                                     ))}
-                                                </Combobox> */}
+                                                </Combobox> 
                                                 <Text role={groupsAria} className='info-text'>
                                                     {t('SendToGroupsNote')}
                                                 </Text>

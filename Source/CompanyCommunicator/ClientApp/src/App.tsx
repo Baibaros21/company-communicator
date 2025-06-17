@@ -19,6 +19,7 @@ import { NewMessage } from './components/NewMessage/newMessage';
 import { SendConfirmationTask } from './components/SendConfirmationTask/sendConfirmationTask';
 import SignInPage from './components/SignInPage/signInPage';
 import { VideoPlayer } from './components/VideoPlayerTask/videoPlayer';
+import { VideoUploadTask } from './components/VideoUplaodTask/VideoUplaodTask';
 import SignInSimpleEnd from './components/SignInPage/signInSimpleEnd';
 import SignInSimpleStart from './components/SignInPage/signInSimpleStart';
 import { ViewStatusTask } from './components/ViewStatusTask/viewStatusTask';
@@ -88,6 +89,8 @@ export const App = () => {
                             <Route exact path={`/${ROUTE_PARTS.SIGN_IN}`} component={SignInPage} />
                             <Route exact path={`/${ROUTE_PARTS.SIGN_IN_SIMPLE_START}`} component={SignInSimpleStart} />
                             <Route exact path={`/${ROUTE_PARTS.SIGN_IN_SIMPLE_END}`} component={SignInSimpleEnd} />
+                            {/* Testing routes */} 
+                            <Route exact path={`/${ROUTE_PARTS.VIDEO_UPLOAD}`} component={VideoUploadTask} />
                         </Switch>
                     </BrowserRouter>
                 </Suspense>

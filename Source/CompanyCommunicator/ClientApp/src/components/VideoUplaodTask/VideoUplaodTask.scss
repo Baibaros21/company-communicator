@@ -1,0 +1,46 @@
+// videoUploadTask.scss - Create this file in CompanyCommunicator/ClientApp/src/components/VideoUploadTask/
+.taskModule {
+    width: 100%;
+    height: 100%;
+}
+
+.error-message {
+    color: #d13438;
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 15px;
+    background-color: #fde7e9;
+    border-radius: 4px;
+}
+
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    padding: 40px 0;
+}
+
+.video-container {
+    width: 100%;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 16px;
+
+    video, iframe {
+        display: block;
+        width: auto;
+        height: auto;
+        min-height: 300px;
+    }
+}
+
+.youtube-field {
+    margin-top: 24px;
+}
+
+.button-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+    gap: 12px;
+}

@@ -108,6 +108,9 @@ export const MainContainer = (props: IMainContainer) => {
     const editTemplatesUrl = () =>
         getBaseUrl() + `/${ROUTE_PARTS.MODIFY_TEMPLATES}`;
 
+    const TESTINGURI = () =>
+        getBaseUrl() + `/${ROUTE_PARTS.VIDEO_UPLOAD}`;
+
 
     return (
         <>
@@ -150,12 +153,12 @@ export const MainContainer = (props: IMainContainer) => {
                         </Menu>
                     </span>
                     <span className="cc-icon-holder">
-                        <Link title={t("Support")} className="cc-icon-link" target="_blank" href="https://aka.ms/M365CCIssues">
+                        <Link title={t("Support")} className="cc-icon-link" target="_blank" href="" disabled onClick={() => onOpenTaskModule(null, TESTINGURI(), t('TESTING'))}>
                             <QuestionCircle24Regular className="cc-icon" />
                         </Link>
                     </span>
                     <span className="cc-icon-holder">
-                        <Link title={t("Feedback")} className="cc-icon-link" target="_blank" href="https://aka.ms/M365CCFeedback">
+                        <Link title={t("Feedback")} className="cc-icon-link" target="_blank" href="" disabled>
                             <PersonFeedback24Regular className="cc-icon" />
                         </Link>
                     </span>

@@ -26,7 +26,7 @@ export enum TemplateSelection {
     department_ar = 'Department Message Arabic',
 
 
-    departmentPoster_ar = 'Department Message Arabic',
+    departmentPoster_ar = 'department message with poster Arabic',
     departmentPoster = 'department message with poster',
 
     departmentVideo = 'department message with video',
@@ -96,7 +96,7 @@ export const TemplateItems: TemplateSelectionItem [] = [
         },
 
         // Informational templates (English)
-        {
+      {
             key: TemplateSelection.infromational,
             displayName: 'Poster Only',
             author: false,
@@ -104,7 +104,8 @@ export const TemplateItems: TemplateSelectionItem [] = [
             poster: true,
             video: false,
             department: false
-        },
+    },
+        /*
         {
             key: TemplateSelection.infoPoster,
             displayName: 'Informational Announcement with Poster',
@@ -122,7 +123,7 @@ export const TemplateItems: TemplateSelectionItem [] = [
             poster: false,
             video: true,
             department: false
-        },
+        },*/
 
         // Video template
         {
@@ -176,7 +177,7 @@ export const TemplateItems: TemplateSelectionItem [] = [
         },
 
         // Informational templates (Arabic)
-        {
+/*        {
             key: TemplateSelection.infoPoster_ar,
             displayName: 'Informational Arabic Announcement with Poster',
             author: false,
@@ -193,5 +194,5 @@ export const TemplateItems: TemplateSelectionItem [] = [
             poster: false,
             video: true,
             department: false
-        },
+        },*/
     ];

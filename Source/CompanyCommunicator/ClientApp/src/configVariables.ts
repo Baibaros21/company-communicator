@@ -4,3 +4,6 @@
 export const getBaseUrl = (): string => {
   return window.location.origin;
 };
+export const getDisplayName = ():string=> {
+    return "ComCreate"
+}

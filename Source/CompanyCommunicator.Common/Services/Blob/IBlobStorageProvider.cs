@@ -5,6 +5,8 @@
 
 namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Blob
 {
+    
+    using Microsoft.AspNetCore.Http;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
@@ -27,6 +29,8 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Blob
         /// <param name="blobName">Blob name.</param>
         /// <returns>Adaptive card in json format.</returns>
         public Task<string> DownloadAdaptiveCardAsync(string blobName);
+
+        public Task<string> GetUploadBlobSASUriAsync(string blobName,IFormFile file);
 
         public Task<IEnumerable<CardTemplatedataEntity>> DownloadAllCardTemplatesAsync();
 
@@ -56,6 +60,14 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Blob
         /// <param name="blobName">Blob name.</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public Task DeleteImageBlobAsync(string blobName);
+
+        /// <summary>
+        /// Delete a blob and all of its snapshots.
+        /// </summary>
+        /// <param name="blobName">Blob name.</param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        public Task DeleteVideoBlobAsync(string blobName);
+
 
         /// <summary>
         /// Copy a source blob to a destination blob with a different name.

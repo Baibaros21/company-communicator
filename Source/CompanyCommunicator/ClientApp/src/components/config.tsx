@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as microsoftTeams from '@microsoft/teams-js';
-import { getBaseUrl } from "../configVariables";
+import { getBaseUrl, getDisplayName } from "../configVariables";
 
 const Configuration: React.FC = () => {
     const [url, setUrl] = React.useState(getBaseUrl() + "/messages?locale={locale}");
@@ -11,7 +11,7 @@ const Configuration: React.FC = () => {
             microsoftTeams.settings.setSettings({
                 entityId: "Company_Communicator_App",
                 contentUrl: url,
-                suggestedDisplayName: "ComCast",
+                suggestedDisplayName: getDisplayName(),
             });
             saveEvent.notifySuccess();
         });
