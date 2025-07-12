@@ -88,7 +88,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common
         /// <summary>
         /// BaseUrl of the Application.
         /// </summary>
-        public const string BaseUrl = "https://companycommunicator.blueridgeit.com";
-       //public const string BaseUrl = "https://comcastv6.dubaiholding.com";
+        //public const string BaseUrl = "https://companycommunicator.blueridgeit.com";
+       public const string BaseUrl = "https://comcastv6.dubaiholding.com";
     }
 }

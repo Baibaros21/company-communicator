@@ -15,8 +15,8 @@ import { formatDate, formatDuration, formatNumber } from '../../i18n';
 import {
     setCardAuthor, setCardDeptTitle,
     setCardBtn, setCardImageLink, setCardSummary,
-    setCardTitle, setCardVideoPlayerUrl, setCardVideoPlayerPoster,
-    setCardLogo, setCardBanner
+    setCardTitle, updateCardVideoElement,
+    setCardLogo, setCardBanner, setCardImageEmbedLink
 } from '../AdaptiveCard/adaptiveCard';
 import { RootState, useAppDispatch, useAppSelector, TemplateSelection } from '../../store';
 import * as ACData from 'adaptivecards-templating';
@@ -36,6 +36,7 @@ export interface IMessageState {
     canceled?: string;
     sentDate?: string;
     imageLink?: string;
+    imageEmbedLink?: string;
     summary?: string;
     author?: string;
     buttonLink?: string;
@@ -180,13 +181,15 @@ export const ViewStatusTask = () => {
             setCardSummary(card, msg.summary);
             setCardAuthor(card, msg.author);
             setCardDeptTitle(card, msg.department);
-            setCardVideoPlayerUrl(card, msg.videoLink);
-            setCardVideoPlayerPoster(card, msg.posterLink);
+            setCardImageEmbedLink(card, msg.imageEmbedLink);
+            updateCardVideoElement(card, msg.videoLink, msg.posterLink);
             setCardLogo(card, defaultsState.logoLink);
             setCardBanner(card, defaultsState.bannerLink);
             if (msg.buttonTitle && msg.buttonLink) {
                 setCardBtn(card, msg.buttonTitle, msg.buttonLink);
             }
+
+
             setIsCardReady(true);
         }
     };

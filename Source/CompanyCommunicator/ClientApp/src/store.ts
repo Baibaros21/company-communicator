@@ -195,4 +195,45 @@ export const TemplateItems: TemplateSelectionItem [] = [
             video: true,
             department: false
         },*/
-    ];
+];
+
+export interface IMessageState {
+    title: string;
+    id?: string;
+    acknowledgements?: string;
+    reactions?: string;
+    responses?: string;
+    succeeded?: string;
+    template:  TemplateSelection;
+    failed?: string;
+    unknown?: string;
+    canceled?: string;
+    sentDate?: string;
+    imageLink?: string;
+    summary?: string;
+    author?: string;
+    buttonLink?: string;
+    buttonTitle?: string;
+    teamNames?: string[];
+    rosterNames?: string[];
+    groupNames?: string[];
+    allUsers?: boolean;
+    sendingStartedDate?: string;
+    sendingDuration?: string;
+    errorMessage?: string;
+    warningMessage?: string;
+    canDownload?: boolean;
+    sendingCompleted?: boolean;
+    createdBy?: string;
+    seen?: number;
+    department?: string;
+    posterLink?: string;
+    videoLink?: string;
+    isMsgDataUpdated?: boolean;
+    card?: string;
+    teams?: any[] | undefined;
+    rosters?: any[];
+    groups?: any[];
+    throttled?: number;
+    isDraftMsgUpdated?: boolean;
+}

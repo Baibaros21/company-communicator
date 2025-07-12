@@ -10,7 +10,6 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
     using System.Threading;
     using System.Threading.Tasks;
     using Azure;
-    using Dynamitey;
     using Microsoft.Azure.Documents.SystemFunctions;
     using Microsoft.Bot.Builder;
     using Microsoft.Bot.Builder.Teams;

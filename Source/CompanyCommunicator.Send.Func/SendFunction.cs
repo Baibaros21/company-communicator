@@ -282,51 +282,51 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
 
             try
             {
-                log.LogInformation($"Parsing the JSON string." +
-                                $"\n {jsonAC}");
+                log.LogInformation($"Parsing the JSON string for Adaptive Card: {jsonAC}");
 
-               JObject jsonObject = JObject.Parse(jsonAC);
+                JObject jsonObject = JObject.Parse(jsonAC);
 
                 var serializedJsonAC = JsonConvert.SerializeObject(jsonObject);
 
-
-                log.LogInformation($"Serialized JObject." +
-                $"\n {serializedJsonAC}");
-
-               // var serializedJsonAC = JsonConvert.SerializeObject(jsonObject);
-
-               // log.LogInformation($"Parsing the JSON string." +$"\n {serializedJsonAC}");
-                
-                // Parse the JSON string
+                // Validate and parse the JSON string into an AdaptiveCard object
                 AdaptiveCardParseResult result = AdaptiveCard.FromJson(serializedJsonAC);
+
+                if (result.Warnings != null && result.Warnings.Count > 0)
+                {
+                    // Log validation errors
+                    foreach (var error in result.Warnings)
+                    {
+                        log.LogError($"Adaptive Card validation error: {error.Message}");
+                    }
+                }
 
                 // Get the AdaptiveCard object
                 AdaptiveCard card = result.Card;
+
                 var adaptiveCardAttachment = new Attachment()
                 {
                     ContentType = AdaptiveCardContentType,
-                    Content = card,
+                    Content = JsonConvert.DeserializeObject(jsonAC) , // Content = card,
                 };
 
+                log.LogInformation("Successfully created Adaptive Card attachment.");
                 return MessageFactory.Attachment(adaptiveCardAttachment);
             }
             catch (Exception error)
             {
-                log.LogError(error, $"Failed to parse the JSON string." +
-                                $"\nNotificationId Id: {message.NotificationId}\n {error.Message}");
+                log.LogError(error, $"Failed to create Adaptive Card. NotificationId: {message.NotificationId}, Error: {error.Message}");
 
-                // Parse the JSON string
-
-                var adaptiveCardAttachment = new Attachment()
+                // Fallback: Attach the raw JSON content
+                var fallbackAttachment = new Attachment()
                 {
                     ContentType = AdaptiveCardContentType,
                     Content = JsonConvert.DeserializeObject(jsonAC),
                 };
 
-                return MessageFactory.Attachment(adaptiveCardAttachment);
+                return MessageFactory.Attachment(fallbackAttachment);
             }
 
-            
+
         }
         
     }

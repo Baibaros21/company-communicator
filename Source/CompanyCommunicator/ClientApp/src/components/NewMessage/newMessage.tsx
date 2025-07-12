@@ -35,15 +35,24 @@ import { ArrowUpload24Regular, Dismiss12Regular } from '@fluentui/react-icons';
 import * as microsoftTeams from '@microsoft/teams-js';
 import * as ACData from 'adaptivecards-templating';
 
-import { GetDraftMessagesSilentAction, GetGroupsAction, GetTeamsDataAction, SearchGroupsAction, VerifyGroupAccessAction, GetAllCardTemplatesAction } from '../../actions';
+import {
+    GetDraftMessagesSilentAction,
+    GetGroupsAction,
+    GetTeamsDataAction,
+    SearchGroupsAction,
+    VerifyGroupAccessAction,
+    GetAllCardTemplatesAction
+} from '../../actions';
 import { createDraftNotification, getDraftNotification, updateDraftNotification, getDefaultData, getAppId } from '../../apis/messageListApi';
 import { getBaseUrl } from '../../configVariables';
 import { RootState, useAppDispatch, useAppSelector, TemplateSelection, TemplateItems } from '../../store';
 import {
     setCardAuthor, setCardDeptTitle,
     setCardBtn, setCardImageLink, setCardSummary,
-    setCardTitle, setCardVideoPlayerUrl, setCardVideoPlayerPoster,
-    setCardLogo, setCardBanner
+    setCardTitle, updateCardVideoElement,
+    setCardVideoPoster, setCardVideoUrl, //setCardVideoPlayerUrl, setCardVideoPlayerPoster,
+    setCardLogo, setCardBanner,
+    setCardImageEmbedLink, getCardImageEmbedLink
 } from '../AdaptiveCard/adaptiveCard';
 import { ROUTE_PARTS } from '../../routes';
 
@@ -54,6 +63,7 @@ interface IMessageState {
     title: string;
     department?: string;
     imageLink?: string;
+    imageEmbedLink?: string; // For image embed link
     summary?: string;
     author?: string;
     buttonTitle?: string;
@@ -211,12 +221,18 @@ export const NewMessage = () => {
     const [allUsersState, setAllUsersState] = React.useState(false);
     const [imageFileName, setImageFileName] = React.useState('');
     const [videoFileName, setVideoFileName] = React.useState('');
-    const [InternalAppId, setInternalAppId] = React.useState('');
+    const [_, setInternalAppId] = React.useState('');
     const [posterFileName, setPosterFileName] = React.useState('');
     const [imageUploadErrorMessage, setImageUploadErrorMessage] = React.useState('');
+    const [imageEmbedLink, setImageEmbedLink] = React.useState('');
+    const [videoUploadErrorMessage, setVideoUploadErrorMessage] = React.useState('');
+
     const [titleErrorMessage, setTitleErrorMessage] = React.useState('');
+    const [imageEmbedLinkErrorMessage, setImageEmbedLinkErrorMessage] = React.useState('');
     const [btnLinkErrorMessage, setBtnLinkErrorMessage] = React.useState('');
     const [showMsgDraftingSpinner, setShowMsgDraftingSpinner] = React.useState(false);
+    const [showMsgUploadingSpinner, setShowMsgUploadingSpinner] = React.useState(false);
+
     const [isCardReady, setIsCardReady] = React.useState(false);
 
     const [allUsersAria, setAllUserAria] = React.useState('none');
@@ -274,16 +290,17 @@ export const NewMessage = () => {
         () => {
             if (isCardReady) {
                 if (messageState.title !== "") setCardTitle(card, messageState.title);
-                if (messageState.imageLink !== "") setCardImageLink(card, messageState.imageLink);
-                if (messageState.department !== "") setCardDeptTitle(card, messageState.department);
-                if (messageState.posterLink !== "") setCardVideoPlayerPoster(card, messageState.posterLink);
-                if (messageState.videoLink !== "") setCardVideoPlayerUrl(card, messageState.videoLink);
-                if (messageState.department !== "") setCardDeptTitle(card, messageState.department);
-                if (messageState.summary !== "") setCardSummary(card, messageState.summary);
-                if (messageState.author !== "") setCardAuthor(card, messageState.author);
-                if (defaultsState.logoLink!=="") setCardLogo(card, defaultsState.logoLink);
-                if (defaultsState.bannerLink!=="") setCardBanner(card, defaultsState.bannerLink);
-                if (messageState.buttonTitle !== "") setCardBtn(card, messageState.buttonTitle, messageState.buttonLink);
+                if (messageState.imageLink !== "") setCardImageLink(card, messageState.imageLink); else setCardImageLink(card, "");
+                if (messageState.department !== "") setCardDeptTitle(card, messageState.department); else setCardDeptTitle(card, "");
+                if (messageState.posterLink !== "" || messageState.videoLink !== "") {
+                    updateCardVideoElement(card, messageState.videoLink, messageState.posterLink);
+                }
+                if (messageState.department !== "") setCardDeptTitle(card, messageState.department); else setCardDeptTitle(card, "");
+                if (messageState.summary !== "") setCardSummary(card, messageState.summary); else setCardSummary(card, "");
+                if (messageState.author !== "") setCardAuthor(card, messageState.author); else setCardAuthor(card, "");
+                if (defaultsState.logoLink !== "") setCardLogo(card, defaultsState.logoLink); else setCardLogo(card, "");
+                if (defaultsState.bannerLink !== "") setCardBanner(card, defaultsState.bannerLink); else setCardBanner(card, "");
+                if (messageState.buttonTitle !== "") setCardBtn(card, messageState.buttonTitle, messageState.buttonLink); else setCardBtn(card, "", "");
                 if (!messageState.title && !messageState.imageLink && !messageState.summary && !messageState.author && !messageState.buttonTitle && !messageState.buttonLink) {
                     getCurrentCardTemplate(selectedTemplate);
 /*                    setDefaultCard(card);
@@ -401,21 +418,23 @@ export const NewMessage = () => {
                     rosters: draftMessageDetail.rosters,
                     groups: draftMessageDetail.groups,
                     allUsers: draftMessageDetail.allUsers,
-                    template: draftMessageDetail.template
+                    template: draftMessageDetail.template,
+                    imageEmbedLink: draftMessageDetail.imageEmbedLink || getCardImageEmbedLink(card) || ''
                 });
                 setSelectedTemplate(draftMessageDetail.template);
                 setCardTitle(card, draftMessageDetail.title);
                 setCardDeptTitle(card, draftMessageDetail.department);
                 setCardImageLink(card, draftMessageDetail.imageLink);
-                setCardVideoPlayerPoster(card, draftMessageDetail.posterLink);
-                setCardVideoPlayerUrl(card, draftMessageDetail.videoLink);
+                updateCardVideoElement(card, draftMessageDetail.videoLink, draftMessageDetail.posterLink);
                 setCardDeptTitle(card, draftMessageDetail.department);
                 setCardSummary(card, draftMessageDetail.summary);
                 setCardAuthor(card, draftMessageDetail.author);
                 setCardBtn(card, draftMessageDetail.buttonTitle, draftMessageDetail.buttonLink);
                 setCardLogo(card, defaultsState.logoLink);
                 setCardBanner(card, defaultsState.bannerLink);
-                setTeamsSelectedOptions(draftMessageDetail.template)
+                setTeamsSelectedOptions(draftMessageDetail.template);
+                setCardImageEmbedLink(card, draftMessageDetail.imageEmbedLink || getCardImageEmbedLink(card) || '');
+
 
 
                 updateAdaptiveCard();
@@ -547,7 +566,7 @@ export const NewMessage = () => {
                 } else if (resizedImageAsBase64 && field === 'poster') {
                     setPosterFileName(file['name']);
                     setImageUploadErrorMessage('');
-                    setCardVideoPlayerPoster(card, resizedImageAsBase64);
+                    setCardVideoPoster(card, resizedImageAsBase64);
                     setMessageState({
                         ...messageState, posterLink: resizedImageAsBase64
                     });
@@ -605,6 +624,29 @@ export const NewMessage = () => {
         }
     };
 
+    const onImageEmbedLinkChanged = (event: any) => {
+        const urlOrDataUrl = event.target.value;
+        let isGoodLink = true;
+        setImageEmbedLink(urlOrDataUrl);
+        if (
+            !(
+                urlOrDataUrl === '' ||
+                urlOrDataUrl.startsWith('https://') 
+            )
+        ) {
+            isGoodLink = false;
+            setImageEmbedLinkErrorMessage(t('ErrorURLMessage'));
+        } else {
+            isGoodLink = true;
+            setImageEmbedLinkErrorMessage(t(''));
+        }
+        if (isGoodLink) {
+            setMessageState({ ...messageState, imageEmbedLink: urlOrDataUrl });
+            setCardImageEmbedLink(card, event.target.value);
+            updateAdaptiveCard();
+        }
+    }
+
     const onPosterLinkChanged = (event: any) => {
         const urlOrDataUrl = event.target.value;
         let isGoodLink = true;
@@ -628,10 +670,10 @@ export const NewMessage = () => {
 
         if (isGoodLink) {
             setMessageState({ ...messageState, posterLink: urlOrDataUrl });
-            setCardVideoPlayerPoster(card, event.target.value);
+            setCardVideoPoster(card, event.target.value);
             updateAdaptiveCard();
         } else {
-            setCardVideoPlayerPoster(card, getBaseUrl() + "/image/imagePlaceholder.png");
+            setCardVideoPoster(card, getBaseUrl() + "/image/imagePlaceholder.png");
         }
     };
 
@@ -659,7 +701,7 @@ export const NewMessage = () => {
 
     // Add this function for video upload
     const uploadVideo = async (file: File) => {
-        setShowMsgDraftingSpinner(true);
+        setShowMsgUploadingSpinner(true);
 
         try {
             // Create FormData
@@ -717,9 +759,9 @@ export const NewMessage = () => {
         } catch (error) {
             const err = error as any;
             console.error("Error uploading video:", err);
-            setImageUploadErrorMessage(t("FailedToUploadVideo"));
+            setVideoUploadErrorMessage(t("FailedToUploadVideo"));
         } finally {
-            setShowMsgDraftingSpinner(false);
+            setShowMsgUploadingSpinner(false);
         }
     }
 
@@ -735,16 +777,16 @@ export const NewMessage = () => {
             )
         ) {
             isGoodLink = false;
-            setImageUploadErrorMessage(t('ErrorURLMessage'));
+            setVideoUploadErrorMessage(t('ErrorURLMessage'));
         } else {
             isGoodLink = true;
-            setImageUploadErrorMessage(t(''));
+            setVideoUploadErrorMessage(t(''));
         }
 
 
         if (isGoodLink) {
             setMessageState({ ...messageState, videoLink: urlOrDataUrl });
-            setCardVideoPlayerUrl(card, urlOrDataUrl);
+            setCardVideoUrl(card, urlOrDataUrl);
             updateAdaptiveCard();
         }
 
@@ -1212,7 +1254,21 @@ export const NewMessage = () => {
                                             ref={fileInput}
                                         />
                                     </div>
-                                </Field></>)
+                                </Field>
+
+                                    <Field size='large' className={field_styles.styles} label={t('Image Embed Link')} required={false} validationMessage={imageEmbedLinkErrorMessage} >
+                                        <Input
+                                            placeholder={t('PlaceHolderImageEmbedLink')}
+                                            onChange={onImageEmbedLinkChanged}
+                                            autoComplete='off'
+                                            size='large'
+                                            required={false}
+                                            appearance='filled-darker'
+                                            value={imageEmbedLink || ''}
+                                        />
+                                    </Field>
+
+                                </>)
                             }
 
                             {
@@ -1250,6 +1306,7 @@ export const NewMessage = () => {
                                             onClick={handlePosterUploadClick}
                                             size='large'
                                             appearance='secondary'
+                                            
                                             aria-label={posterFileName ? t('UploadImageSuccessful') : t('UploadImageInfo')}
                                             icon={<ArrowUpload24Regular />}
                                         >
@@ -1275,6 +1332,7 @@ export const NewMessage = () => {
                                                 </InfoLabel>
                                             ),
                                         }}
+                                        validationMessage={videoUploadErrorMessage}
 
                                     >
                                         <div
@@ -1293,10 +1351,20 @@ export const NewMessage = () => {
                                                 onChange={onVideoLinkChanged}
                                             />
                                         </div>
+                                        {showMsgUploadingSpinner && (
+                                            <Spinner
+                                                role='alert'
+                                                id='draftingLoader'
+                                                size='small'
+                                                label={t('Uploading Video')}
+                                                labelPosition='after'
+                                            />
+                                        )}
                                         <Button
                                             style={{ gridColumn: '2', marginLeft: '5px' }}
                                             onClick={handleVideoUploadClick}
                                             size='large'
+                                            disabled={showMsgUploadingSpinner}
                                             appearance='secondary'
                                             icon={<ArrowUpload24Regular />}
                                         >
@@ -1385,7 +1453,7 @@ export const NewMessage = () => {
                                 </Button>
                                 <Button
                                     style={{ marginLeft: '16px' }}
-                                    disabled={isNextBtnDisabled() || showMsgDraftingSpinner}
+                                    disabled={isNextBtnDisabled() || showMsgDraftingSpinner || showMsgUploadingSpinner}
                                     id='saveBtn'
                                     onClick={onNext}
                                     appearance='primary'

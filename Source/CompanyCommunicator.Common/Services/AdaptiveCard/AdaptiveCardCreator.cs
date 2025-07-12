@@ -47,6 +47,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.AdaptiveCard
                         return this.CreateAdaptiveCard(
                             title: notificationDataEntity.Title,
                             imageUrl: notificationDataEntity.ImageLink,
+                            imageEmbedLink: notificationDataEntity.ImageEmbedLink,
                             summary: notificationDataEntity.Summary,
                             author: notificationDataEntity.Author,
                             buttonTitle: notificationDataEntity.ButtonTitle,
@@ -72,6 +73,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.AdaptiveCard
                         return this.CreateAdaptiveCard(
                             title: notificationDataEntity.Title,
                             imageUrl: notificationDataEntity.ImageLink,
+                            imageEmbedLink: notificationDataEntity.ImageEmbedLink,
                             summary: notificationDataEntity.Summary,
                             author: notificationDataEntity.Author,
                             buttonTitle: notificationDataEntity.ButtonTitle,
@@ -92,6 +94,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.AdaptiveCard
                         return this.CreateAdaptiveCard(
                             title: notificationDataEntity.Title,
                             imageUrl: notificationDataEntity.ImageLink,
+                            imageEmbedLink: notificationDataEntity.ImageEmbedLink,
                             summary: notificationDataEntity.Summary,
                             author: notificationDataEntity.Author,
                             buttonTitle: notificationDataEntity.ButtonTitle,
@@ -113,6 +116,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.AdaptiveCard
                             title: notificationDataEntity.Title,
                             imageUrl: notificationDataEntity.ImageLink,
                             summary: notificationDataEntity.Summary,
+                            imageEmbedLink: notificationDataEntity.ImageEmbedLink,
                             author: notificationDataEntity.Author,
                             buttonTitle: notificationDataEntity.ButtonTitle,
                             buttonUrl: notificationDataEntity.ButtonLink,
@@ -156,6 +160,8 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.AdaptiveCard
         /// </summary>
         /// <param name="title">The adaptive card's title value.</param>
         /// <param name="imageUrl">The adaptive card's image URL.</param>
+       /// <param name="imageEmbedLink">The adaptive card's image URL.</param>
+
         /// <param name="summary">The adaptive card's summary value.</param>
         /// <param name="author">The adaptive card's author value.</param>
         /// <param name="buttonTitle">The adaptive card's button title value.</param>
@@ -174,6 +180,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.AdaptiveCard
         public AdaptiveCard CreateAdaptiveCard(
             string title,
             string imageUrl,
+            string imageEmbedLink,
             string summary,
             string author,
             string buttonTitle,
@@ -242,6 +249,13 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.AdaptiveCard
                     Size = AdaptiveImageSize.Stretch,
                     AltText = string.Empty,
                 };
+                if (!string.IsNullOrWhiteSpace(imageEmbedLink))
+                {
+                    img.SelectAction = new AdaptiveOpenUrlAction()
+                    {
+                        Url = new Uri(imageEmbedLink, UriKind.RelativeOrAbsolute),
+                    };
+                }
 
                 // Image enlarge support for Teams web/desktop client.
                 img.AdditionalProperties.Add("msteams", new { AllowExpand = true });

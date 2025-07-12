@@ -13,8 +13,8 @@ import {
 import {
     setCardAuthor, setCardDeptTitle,
     setCardBtn, setCardImageLink, setCardSummary,
-    setCardTitle, setCardVideoPlayerUrl, setCardVideoPlayerPoster,
-    setCardLogo, setCardBanner
+    setCardTitle, updateCardVideoElement, 
+    setCardLogo, setCardBanner, setCardImageEmbedLink
 } from '../AdaptiveCard/adaptiveCard';
 import { AvatarShape } from '@fluentui/react-avatar';
 import { RootState, useAppDispatch, useAppSelector, TemplateSelection } from '../../store';
@@ -32,6 +32,7 @@ export interface IMessageState {
     throttled?: number;
     sentDate?: string;
     imageLink?: string;
+    imageEmbedLink?: string;
     summary?: string;
     author?: string;
     buttonLink?: string;
@@ -169,13 +170,11 @@ export const SendConfirmationTask = () => {
 
         setCardTitle(card, msg.title);
         setCardImageLink(card, msg.imageLink);
+        setCardImageEmbedLink(card, msg.imageEmbedLink);
         setCardSummary(card, msg.summary);
         setCardAuthor(card, msg.author);
         setCardDeptTitle(card, msg.department);
-        setCardVideoPlayerPoster(card, msg.posterLink);
-        setCardVideoPlayerUrl(card, msg.videoLink);
-        setCardLogo(card, defaultsState.logoLink);
-        setCardBanner(card, defaultsState.bannerLink);
+        updateCardVideoElement(card, msg.videoLink, msg.posterLink);
         if (msg.buttonTitle && msg.buttonLink) {
             setCardBtn(card, msg.buttonTitle, msg.buttonLink);
         }

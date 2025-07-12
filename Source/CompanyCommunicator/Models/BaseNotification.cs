@@ -33,6 +33,11 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Models
         public string ImageLink { get; set; }
 
         /// <summary>
+        /// Gets or sets the Image Embed Link value.
+        /// </summary>
+        public string ImageEmbedLink { get; set; }
+
+        /// <summary>
         /// Gets or sets the Poster Link value.
         /// </summary>
         public string PosterLink { get; set; }

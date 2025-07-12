@@ -39,6 +39,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Repositories.Extensions
                 Title = notification.Title,
                 Department = notification.Department,
                 ImageLink = notification.ImageLink,
+                ImageEmbedLink = notification.ImageEmbedLink,
                 PosterLink = notification.PosterLink,
                 VideoLink = notification.VideoLink,
                 Summary = notification.Summary,
